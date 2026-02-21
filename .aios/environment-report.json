@@ -1,0 +1,63 @@
+{
+  "generated_at": "2026-02-21T00:00:00Z",
+  "project_name": "cz-squad",
+  "system": {
+    "os": "macOS",
+    "architecture": "arm64",
+    "user": "nando",
+    "hostname": "$(hostname)"
+  },
+  "cli_tools": {
+    "git": {
+      "installed": true,
+      "version": "2.39.5"
+    },
+    "gh": {
+      "installed": true,
+      "version": "2.87.2",
+      "authenticated": true,
+      "account": "tatudozen"
+    },
+    "node": {
+      "installed": true,
+      "version": "22.22.0"
+    },
+    "npm": {
+      "installed": true,
+      "version": "10.9.4"
+    },
+    "supabase": {
+      "installed": true,
+      "version": "2.75.0",
+      "authenticated": true
+    },
+    "railway": {
+      "installed": false
+    },
+    "docker": {
+      "installed": true,
+      "version": "28.3.3",
+      "running": false
+    },
+    "homebrew": {
+      "installed": true,
+      "version": "5.0.14"
+    }
+  },
+  "repository": {
+    "initialized": true,
+    "remote_url": "https://github.com/tatudozen/cz-squad.git",
+    "branch": "main",
+    "status": "clean"
+  },
+  "aios_framework": {
+    "installed": true,
+    "location": ".aios-core",
+    "config_generated": true
+  },
+  "validation": {
+    "essential_complete": true,
+    "recommended_complete": true,
+    "ready_for_development": true
+  }
+}

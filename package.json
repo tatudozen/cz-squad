@@ -1,0 +1,26 @@
+{
+  "name": "cz-squad",
+  "version": "0.1.0",
+  "description": "Synkra AIOS - AI-Orchestrated Development Framework for CZ Squad",
+  "scripts": {
+    "dev": "echo 'Add your dev script'",
+    "build": "npm run build --prefix .aios-core",
+    "test": "npm run test --prefix .aios-core",
+    "lint": "npm run lint --prefix .aios-core",
+    "typecheck": "npm run typecheck --prefix .aios-core",
+    "sync:ide": "npm run sync:ide --prefix .aios-core",
+    "validate:structure": "npm run validate:structure --prefix .aios-core",
+    "validate:agents": "npm run validate:agents --prefix .aios-core"
+  },
+  "keywords": [
+    "aios",
+    "ai-agents",
+    "development-framework",
+    "orchestration"
+  ],
+  "author": "CZ Squad Team",
+  "license": "ISC",
+  "workspaces": [
+    ".aios-core"
+  ]
+}

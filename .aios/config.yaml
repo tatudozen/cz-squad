@@ -1,0 +1,21 @@
+# AIOS Project Configuration
+version: 2.1.0
+project:
+  name: cz-squad
+  type: brownfield
+  created: 2025-02-20
+
+environment:
+  bootstrapped: true
+  bootstrap_date: 2026-02-21T00:00:00Z
+
+workflow:
+  current: brownfield-fullstack
+  phase: 1-environment-bootstrap-complete
+
+permissions:
+  mode: ask  # Permission mode: explore (read-only), ask (confirm changes), auto (full autonomy)
+
+settings:
+  auto_update_status: true
+  quality_gates_enabled: true
