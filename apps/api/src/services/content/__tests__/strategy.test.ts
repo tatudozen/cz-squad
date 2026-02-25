@@ -5,9 +5,9 @@
  * Story 2.1: Content Strategy & Planning Module (AC: 7)
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { createContentPlan } from '../strategy.ts';
-import * as llmAdapterModule from '../../../utils/llm-adapter.ts';
+import { llmAdapter } from '../../../utils/llm-adapter.ts';
 
 // Mock LLM responses
 const MOCK_LLM_RESPONSE = `
@@ -125,23 +125,25 @@ const mockBriefing = {
 const mockBrandProfile = {
   id: 'profile-789',
   client_id: 'client-456',
-  color_palette: [
+  colorPalette: [
     { name: 'Primary', hex: '#06164A' },
     { name: 'Secondary', hex: '#6220FF' },
     { name: 'Accent', hex: '#ED145B' },
   ],
-  font_recommendations: { heading: 'Poppins', body: 'Inter' },
-  voice_guidelines: 'Professional, empathetic, trustworthy',
+  fontRecommendations: { heading: 'Poppins', body: 'Inter' },
+  voiceGuidelines: 'Professional, empathetic, trustworthy',
   created_at: '2026-02-20T00:00:00Z',
   updated_at: '2026-02-20T00:00:00Z',
 };
 
 describe('Content Strategy Service', () => {
   beforeEach(() => {
-    // Mock LLM adapter
-    vi.mocked(llmAdapterModule.llmAdapter.generateCompletion).mockResolvedValue(
-      MOCK_LLM_RESPONSE
-    );
+    // Mock LLM adapter using spyOn
+    vi.spyOn(llmAdapter, 'generateCompletion').mockResolvedValue(MOCK_LLM_RESPONSE);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('createContentPlan()', () => {

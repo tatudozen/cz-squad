@@ -11,9 +11,7 @@ import {
   ContentPlan,
   ContentPlanOptions,
   ContentPlanPost,
-  PostType,
-  ContentFormat,
-} from '../types/content.ts';
+} from '@api/types/content';
 import { llmAdapter } from '../../utils/llm-adapter.ts';
 import { logger } from '../../utils/logger.ts';
 
@@ -228,7 +226,7 @@ CLIENT BRIEF:
 
 BRAND PROFILE:
 - Brand Voice: ${brandProfile.voiceGuidelines}
-- Color Palette: ${(brandProfile.colorPalette as any[]).map((c: any) => c.name).join(', ')}
+- Color Palette: ${(brandProfile.colorPalette as unknown as Array<{ name?: string }>).map((c) => c.name).join(', ')}
 
 CONTENT PLAN REQUIREMENTS:
 You must generate exactly ${options.total_posts} posts with:

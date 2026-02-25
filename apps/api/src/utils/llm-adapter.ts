@@ -6,7 +6,7 @@
  * Story 2.1 uses this for content strategy generation
  */
 
-import { logger } from './logger.ts';
+import { logger } from './logger';
 
 export interface LLMOptions {
   temperature?: number;
@@ -54,11 +54,14 @@ class ClaudeAdapter implements LLMAdapter {
       });
 
       if (!response.ok) {
-        const error = await response.json();
+        const error = (await response.json()) as { message?: string };
         throw new Error(`Claude API error: ${error.message || response.statusText}`);
       }
 
-      const data = (await response.json()) as any;
+      const data = (await response.json()) as {
+        content?: Array<{ text?: string }>;
+        usage?: { input_tokens?: number; output_tokens?: number };
+      };
       const content = data.content?.[0]?.text;
 
       if (!content) {
@@ -86,7 +89,7 @@ class ClaudeAdapter implements LLMAdapter {
  * Fallback adapters in case primary fails
  */
 class DeepseekAdapter implements LLMAdapter {
-  async generateCompletion(prompt: string, options?: LLMOptions): Promise<string> {
+  async generateCompletion(_prompt: string, _options?: LLMOptions): Promise<string> {
     // Placeholder for Deepseek integration
     // Would be implemented in future enhancement
     throw new Error('Deepseek adapter not yet implemented');

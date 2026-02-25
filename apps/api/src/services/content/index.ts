@@ -3,9 +3,9 @@
  * Exports all content generation services
  */
 
-export { createContentPlan } from './strategy.ts';
+export { createContentPlan } from './strategy';
 export type {
   ContentPlan,
   ContentPlanPost,
   ContentPlanOptions,
-} from '../types/content.ts';
+} from '@api/types/content';

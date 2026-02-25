@@ -7,10 +7,10 @@
 
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { createContentPlan } from '../services/content/index.ts';
-import contentPlanRepository from '../repositories/ContentPlanRepository.ts';
+import { createContentPlan } from '../services/content/index';
+import contentPlanRepository from '../repositories/ContentPlanRepository';
 import { BriefingRepository, BrandProfileRepository } from '@shared/repositories';
-import { logger } from '../utils/logger.ts';
+import { logger } from '../utils/logger';
 
 const router = Router();
 
@@ -125,8 +125,8 @@ router.post('/plan', async (req: Request, res: Response) => {
 
     // Generate content plan via service
     const contentPlan = await createContentPlan(
-      briefing,
-      brandProfile,
+      briefing as any,
+      brandProfile as any,
       briefing.client_id,
       {
         total_posts: body.total_posts,

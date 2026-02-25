@@ -3,7 +3,6 @@
  * Defines all types used in the content strategy and generation pipeline
  */
 
-import { Briefing, BrandProfile } from '@shared/types';
 
 /**
  * Content post type: carousel or static image
