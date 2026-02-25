@@ -1,0 +1,437 @@
+{
+  "name": "CopyZen Master Pipeline - Briefing to Deliverables",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "briefing-approved",
+      "description": "Triggers when briefing is approved"
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.API_BASE_URL }}/briefings/{{ $node['Webhook Trigger'].json.briefing_id }}",
+        "authentication": "bearerToken",
+        "nodeCredentialType": "httpHeaderAuth",
+        "requestMethod": "GET",
+        "options": {}
+      },
+      "name": "Fetch Briefing",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [450, 200],
+      "description": "Get briefing details"
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.API_BASE_URL }}/brand-profiles?client_id={{ $node['Webhook Trigger'].json.client_id }}",
+        "authentication": "bearerToken",
+        "nodeCredentialType": "httpHeaderAuth",
+        "requestMethod": "GET",
+        "options": {}
+      },
+      "name": "Fetch Brand Profile",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [450, 400],
+      "description": "Get brand profile for client"
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.API_BASE_URL }}/copy/generate",
+        "authentication": "bearerToken",
+        "nodeCredentialType": "httpHeaderAuth",
+        "requestMethod": "POST",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "client_id",
+              "value": "={{ $node['Webhook Trigger'].json.client_id }}"
+            },
+            {
+              "name": "brand_profile_id",
+              "value": "={{ $node['Fetch Brand Profile'].json.data[0].id }}"
+            },
+            {
+              "name": "copy_type",
+              "value": "headline"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Generate Headline",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [650, 100],
+      "description": "Generate headline copy"
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.API_BASE_URL }}/copy/generate",
+        "authentication": "bearerToken",
+        "nodeCredentialType": "httpHeaderAuth",
+        "requestMethod": "POST",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "client_id",
+              "value": "={{ $node['Webhook Trigger'].json.client_id }}"
+            },
+            {
+              "name": "brand_profile_id",
+              "value": "={{ $node['Fetch Brand Profile'].json.data[0].id }}"
+            },
+            {
+              "name": "copy_type",
+              "value": "subheadline"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Generate Subheadline",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [650, 200],
+      "description": "Generate subheadline copy"
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.API_BASE_URL }}/copy/generate",
+        "authentication": "bearerToken",
+        "nodeCredentialType": "httpHeaderAuth",
+        "requestMethod": "POST",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "client_id",
+              "value": "={{ $node['Webhook Trigger'].json.client_id }}"
+            },
+            {
+              "name": "brand_profile_id",
+              "value": "={{ $node['Fetch Brand Profile'].json.data[0].id }}"
+            },
+            {
+              "name": "copy_type",
+              "value": "body_text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Generate Body Text",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [650, 300],
+      "description": "Generate body text copy"
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.API_BASE_URL }}/copy/generate",
+        "authentication": "bearerToken",
+        "nodeCredentialType": "httpHeaderAuth",
+        "requestMethod": "POST",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "client_id",
+              "value": "={{ $node['Webhook Trigger'].json.client_id }}"
+            },
+            {
+              "name": "brand_profile_id",
+              "value": "={{ $node['Fetch Brand Profile'].json.data[0].id }}"
+            },
+            {
+              "name": "copy_type",
+              "value": "cta"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Generate CTA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [650, 400],
+      "description": "Generate call-to-action copy"
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.API_BASE_URL }}/copy/generate",
+        "authentication": "bearerToken",
+        "nodeCredentialType": "httpHeaderAuth",
+        "requestMethod": "POST",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "client_id",
+              "value": "={{ $node['Webhook Trigger'].json.client_id }}"
+            },
+            {
+              "name": "brand_profile_id",
+              "value": "={{ $node['Fetch Brand Profile'].json.data[0].id }}"
+            },
+            {
+              "name": "copy_type",
+              "value": "social_post"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Generate Social Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [650, 500],
+      "description": "Generate social media post copy"
+    },
+    {
+      "parameters": {
+        "dataToSend": "headers",
+        "headerParameters": {
+          "parameters": []
+        },
+        "options": {
+          "headers": {
+            "authorization": "Bearer {{ $env.SUPABASE_SERVICE_ROLE_KEY }}",
+            "apikey": "{{ $env.SUPABASE_ANON_KEY }}"
+          }
+        }
+      },
+      "name": "Wait Before Store",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [850, 300],
+      "waitTime": 1
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "schema": "public",
+        "table": "copy_deliverables",
+        "columns": "client_id,briefing_id,headline,subheadline,body_text,cta,social_post,instagram_carousel,linkedin_posts,landing_page_draft,workflow_run_id,status",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldName": "client_id",
+              "fieldValue": "={{ $node['Webhook Trigger'].json.client_id }}"
+            },
+            {
+              "fieldName": "briefing_id",
+              "fieldValue": "={{ $node['Webhook Trigger'].json.briefing_id }}"
+            },
+            {
+              "fieldName": "headline",
+              "fieldValue": "={{ $node['Generate Headline'].json.data.generated_copy }}"
+            },
+            {
+              "fieldName": "subheadline",
+              "fieldValue": "={{ $node['Generate Subheadline'].json.data.generated_copy }}"
+            },
+            {
+              "fieldName": "body_text",
+              "fieldValue": "={{ $node['Generate Body Text'].json.data.generated_copy }}"
+            },
+            {
+              "fieldName": "cta",
+              "fieldValue": "={{ $node['Generate CTA'].json.data.generated_copy }}"
+            },
+            {
+              "fieldName": "social_post",
+              "fieldValue": "={{ $node['Generate Social Post'].json.data.generated_copy }}"
+            },
+            {
+              "fieldName": "workflow_run_id",
+              "fieldValue": "={{ $execution.id }}"
+            },
+            {
+              "fieldName": "status",
+              "fieldValue": "ready"
+            }
+          ]
+        }
+      },
+      "name": "Store Deliverables",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [1050, 300],
+      "description": "Save generated deliverables to database"
+    },
+    {
+      "parameters": {
+        "fromEmail": "{{ $env.SMTP_FROM_EMAIL }}",
+        "toEmail": "{{ $env.OPERATOR_EMAIL }}",
+        "subject": "✅ Entregas Prontas: {{ $node['Fetch Briefing'].json.data.business_name }}",
+        "textContent": "Briefing: {{ $node['Fetch Briefing'].json.data.business_name }}\n\nHeadline: {{ $node['Generate Headline'].json.data.generated_copy }}\nSubheadline: {{ $node['Generate Subheadline'].json.data.generated_copy }}\nBody: {{ $node['Generate Body Text'].json.data.generated_copy }}\nCTA: {{ $node['Generate CTA'].json.data.generated_copy }}\nSocial: {{ $node['Generate Social Post'].json.data.generated_copy }}\n\nStatus: PRONTO PARA PUBLICAÇÃO"
+      },
+      "name": "Notify Operator",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [1250, 300],
+      "description": "Send notification to operator"
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ success: true, timestamp: new Date().toISOString() }];"
+      },
+      "name": "Success Response",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1450, 300],
+      "description": "Return success status"
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Briefing",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Brand Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Briefing": {
+      "main": [
+        [
+          {
+            "node": "Generate Headline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Brand Profile": {
+      "main": [
+        [
+          {
+            "node": "Generate Subheadline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Headline": {
+      "main": [
+        [
+          {
+            "node": "Generate Body Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Subheadline": {
+      "main": [
+        [
+          {
+            "node": "Generate CTA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Body Text": {
+      "main": [
+        [
+          {
+            "node": "Generate Social Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate CTA": {
+      "main": [
+        [
+          {
+            "node": "Wait Before Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Social Post": {
+      "main": [
+        [
+          {
+            "node": "Wait Before Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Before Store": {
+      "main": [
+        [
+          {
+            "node": "Store Deliverables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Deliverables": {
+      "main": [
+        [
+          {
+            "node": "Notify Operator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Operator": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "triggerCount": 1,
+  "documentation": {
+    "description": "Master workflow orchestrating the complete CopyZen pipeline",
+    "features": [
+      "Webhook trigger on briefing approval",
+      "Parallel copy generation for 5 types",
+      "Deliverable storage in Supabase",
+      "Operator email notification"
+    ],
+    "environmentVariables": [
+      "API_BASE_URL: Base URL for CopyZen API",
+      "SUPABASE_SERVICE_ROLE_KEY: Supabase admin key",
+      "SUPABASE_ANON_KEY: Supabase anon key",
+      "SMTP_FROM_EMAIL: Notification sender email",
+      "OPERATOR_EMAIL: Operator email address"
+    ]
+  }
+}

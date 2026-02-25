@@ -194,8 +194,97 @@ export class BrandProfileRepository {
   }
 }
 
+// =====================================================
+// COPY DELIVERABLE REPOSITORY
+// =====================================================
+
+export interface CopyDeliverable {
+  id: string;
+  client_id: string;
+  briefing_id: string;
+  headline: string;
+  subheadline: string;
+  body_text: string;
+  cta: string;
+  social_post: string;
+  instagram_carousel?: Record<string, unknown>;
+  linkedin_posts?: Record<string, unknown>;
+  landing_page_draft?: Record<string, unknown>;
+  workflow_run_id?: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export class DeliverableRepository {
+  static async create(data: unknown): Promise<CopyDeliverable> {
+    const { data: deliverable, error } = await supabaseAdmin
+      .from('copy_deliverables')
+      .insert([data])
+      .select()
+      .single();
+
+    if (error) throw new Error(`Failed to create deliverable: ${error.message}`);
+    return deliverable;
+  }
+
+  static async getById(id: string): Promise<CopyDeliverable | null> {
+    const { data, error } = await supabaseAdmin
+      .from('copy_deliverables')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error && error.code !== 'PGRST116') throw error;
+    return data || null;
+  }
+
+  static async getByBriefingId(briefingId: string): Promise<CopyDeliverable | null> {
+    const { data, error } = await supabaseAdmin
+      .from('copy_deliverables')
+      .select('*')
+      .eq('briefing_id', briefingId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error && error.code !== 'PGRST116') throw error;
+    return data || null;
+  }
+
+  static async getByClientId(clientId: string): Promise<CopyDeliverable[]> {
+    const { data, error } = await supabaseAdmin
+      .from('copy_deliverables')
+      .select('*')
+      .eq('client_id', clientId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw new Error(`Failed to fetch deliverables: ${error.message}`);
+    return data;
+  }
+
+  static async update(id: string, data: Partial<unknown>): Promise<CopyDeliverable> {
+    const { data: deliverable, error } = await supabaseAdmin
+      .from('copy_deliverables')
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw new Error(`Failed to update deliverable: ${error.message}`);
+    return deliverable;
+  }
+
+  static async delete(id: string): Promise<void> {
+    const { error } = await supabaseAdmin.from('copy_deliverables').delete().eq('id', id);
+
+    if (error) throw new Error(`Failed to delete deliverable: ${error.message}`);
+  }
+}
+
 export default {
   ClientRepository,
   BriefingRepository,
   BrandProfileRepository,
+  DeliverableRepository,
 };
