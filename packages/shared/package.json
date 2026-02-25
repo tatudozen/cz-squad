@@ -1,0 +1,39 @@
+{
+  "name": "@copyzen/shared",
+  "version": "0.1.0",
+  "description": "CopyZen Shared Types & Utilities",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.0.4"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./types": {
+      "import": "./dist/types/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./llm": {
+      "import": "./dist/llm/index.js",
+      "types": "./dist/llm/index.d.ts"
+    }
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

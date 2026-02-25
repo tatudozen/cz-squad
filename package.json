@@ -1,26 +1,39 @@
 {
   "name": "cz-squad",
   "version": "0.1.0",
-  "description": "Synkra AIOS - AI-Orchestrated Development Framework for CZ Squad",
-  "scripts": {
-    "dev": "echo 'Add your dev script'",
-    "build": "npm run build --prefix .aios-core",
-    "test": "npm run test --prefix .aios-core",
-    "lint": "npm run lint --prefix .aios-core",
-    "typecheck": "npm run typecheck --prefix .aios-core",
-    "sync:ide": "npm run sync:ide --prefix .aios-core",
-    "validate:structure": "npm run validate:structure --prefix .aios-core",
-    "validate:agents": "npm run validate:agents --prefix .aios-core"
-  },
-  "keywords": [
-    "aios",
-    "ai-agents",
-    "development-framework",
-    "orchestration"
-  ],
-  "author": "CZ Squad Team",
-  "license": "ISC",
+  "description": "CopyZen - Plataforma de Automação de Marketing Conversacional via Agentes IA",
+  "private": true,
+  "type": "module",
   "workspaces": [
-    ".aios-core"
-  ]
+    "apps/api",
+    "apps/pages",
+    "packages/shared"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/api & npm run dev --workspace=apps/pages",
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:pages": "npm run dev --workspace=apps/pages",
+    "build": "npm run build --workspace=apps/api && npm run build --workspace=apps/pages",
+    "build:api": "npm run build --workspace=apps/api",
+    "build:pages": "npm run build --workspace=apps/pages",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "node scripts/setup-db.js",
+    "db:seed": "node scripts/seed-db.js",
+    "clean": "rm -rf apps/*/dist packages/*/dist"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.0.4"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
 }

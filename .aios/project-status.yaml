@@ -1,0 +1,19 @@
+status:
+  branch: main
+  modifiedFiles:
+    - .env.example
+    - package.json
+    - .aios/project-status.yaml
+    - .eslintrc.js
+    - .github/
+  modifiedFilesTotalCount: 15
+  recentCommits:
+    - 'docs: add CopyZen project brief (approved)'
+    - 'chore: bootstrap AIOS environment'
+  currentEpic: null
+  currentStory: null
+  lastUpdate: '2026-02-24T23:55:38.254Z'
+  isGitRepo: true
+timestamp: 1771977338257
+ttl: 60
+gitFingerprint: 1771631575933.2188:1771947969574.121
