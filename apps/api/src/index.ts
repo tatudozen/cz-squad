@@ -1,10 +1,10 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { config } from './utils/config.js';
-import { logger } from './utils/logger.js';
-import briefingsRouter from './routes/briefings.js';
-import brandProfilesRouter from './routes/brand-profiles.js';
-import copyRouter from './routes/copy.js';
-import { errorHandler } from './middleware/error-handler.js';
+import { config } from './utils/config.ts';
+import { logger } from './utils/logger.ts';
+import briefingsRouter from './routes/briefings.ts';
+import brandProfilesRouter from './routes/brand-profiles.ts';
+import copyRouter from './routes/copy.ts';
+import { errorHandler } from './middleware/error-handler.ts';
 
 const app = express();
 
