@@ -4,6 +4,7 @@ import { logger } from './utils/logger.ts';
 import briefingsRouter from './routes/briefings.ts';
 import brandProfilesRouter from './routes/brand-profiles.ts';
 import copyRouter from './routes/copy.ts';
+import contentRouter from './routes/content.ts';
 import { errorHandler } from './middleware/error-handler.ts';
 
 const app = express();
@@ -46,6 +47,9 @@ app.use('/brand-profiles', brandProfilesRouter);
 
 // Copy generation routes (Story 1.5)
 app.use('/copy', copyRouter);
+
+// Content generation routes (Story 2.1)
+app.use('/content', contentRouter);
 
 app.post('/content/generate-package', (req: Request, res: Response) => {
   res.status(501).json({ error: 'Not implemented' });
