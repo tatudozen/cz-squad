@@ -115,10 +115,8 @@ describe('RLS Integration Tests', () => {
     it('should enforce valid briefing statuses', async () => {
       const validStatuses = ['draft', 'approved', 'processing', 'completed'];
 
-      for (const status of validStatuses) {
-        const briefing = await BriefingRepository.getById(briefing1.id);
-        expect(validStatuses).toContain(briefing?.status);
-      }
+      const briefing = await BriefingRepository.getById(briefing1.id);
+      expect(validStatuses).toContain(briefing?.status);
     });
 
     it('should track approval metadata', async () => {

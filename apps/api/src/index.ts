@@ -1,6 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { config } from './utils/config.js';
 import { logger } from './utils/logger.js';
+import briefingsRouter from './routes/briefings.js';
+import { errorHandler } from './middleware/error-handler.js';
 
 const app = express();
 
@@ -34,11 +36,10 @@ app.get('/metrics', (req: Request, res: Response) => {
   });
 });
 
-// Placeholder routes - to be implemented
-app.post('/briefings', (req: Request, res: Response) => {
-  res.status(501).json({ error: 'Not implemented' });
-});
+// Briefings routes (Story 1.3)
+app.use('/briefings', briefingsRouter);
 
+// TODO: Implement briefing approval endpoint in Story 1.4
 app.post('/briefings/:id/approve', (req: Request, res: Response) => {
   res.status(501).json({ error: 'Not implemented' });
 });
@@ -63,20 +64,8 @@ app.post('/sales-page/generate', (req: Request, res: Response) => {
   res.status(501).json({ error: 'Not implemented' });
 });
 
-// Error handler
-app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
-  const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-  const errorStack = err instanceof Error ? err.stack : undefined;
-  logger.error(`[${req.id}] ${errorMsg}`, { stack: errorStack });
-  res.status(500).json({
-    error: {
-      code: 'INTERNAL_ERROR',
-      message: process.env.NODE_ENV === 'development' ? errorMsg : 'Internal server error',
-      timestamp: new Date().toISOString(),
-      requestId: req.id,
-    },
-  });
-});
+// Global error handler (Story 1.3)
+app.use(errorHandler);
 
 // Start server
 const PORT = config.apiPort;

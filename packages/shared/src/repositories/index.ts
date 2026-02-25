@@ -115,6 +115,19 @@ export class BriefingRepository {
     return briefing;
   }
 
+  static async update(id: string, data: Partial<unknown>): Promise<Briefing> {
+    const validated = BriefingInputSchema.partial().parse(data);
+    const { data: briefing, error } = await supabaseAdmin
+      .from('briefings')
+      .update({ ...validated, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw new Error(`Failed to update briefing: ${error.message}`);
+    return briefing;
+  }
+
   static async delete(id: string): Promise<void> {
     const { error } = await supabaseAdmin.from('briefings').delete().eq('id', id);
 
