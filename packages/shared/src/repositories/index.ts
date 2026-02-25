@@ -175,6 +175,18 @@ export class BrandProfileRepository {
     return data || null;
   }
 
+  static async update(id: string, data: Partial<unknown>): Promise<BrandProfile> {
+    const { data: profile, error } = await supabaseAdmin
+      .from('brand_profiles')
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw new Error(`Failed to update brand profile: ${error.message}`);
+    return profile;
+  }
+
   static async delete(id: string): Promise<void> {
     const { error } = await supabaseAdmin.from('brand_profiles').delete().eq('id', id);
 

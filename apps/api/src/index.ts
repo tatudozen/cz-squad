@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import { config } from './utils/config.js';
 import { logger } from './utils/logger.js';
 import briefingsRouter from './routes/briefings.js';
+import brandProfilesRouter from './routes/brand-profiles.js';
 import { errorHandler } from './middleware/error-handler.js';
 
 const app = express();
@@ -39,14 +40,8 @@ app.get('/metrics', (req: Request, res: Response) => {
 // Briefings routes (Story 1.3)
 app.use('/briefings', briefingsRouter);
 
-// TODO: Implement briefing approval endpoint in Story 1.4
-app.post('/briefings/:id/approve', (req: Request, res: Response) => {
-  res.status(501).json({ error: 'Not implemented' });
-});
-
-app.get('/brand-profiles/:clientId', (req: Request, res: Response) => {
-  res.status(501).json({ error: 'Not implemented' });
-});
+// Brand profiles routes (Story 1.4)
+app.use('/brand-profiles', brandProfilesRouter);
 
 app.post('/content/generate-package', (req: Request, res: Response) => {
   res.status(501).json({ error: 'Not implemented' });
