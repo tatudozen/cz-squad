@@ -6,6 +6,7 @@ import brandProfilesRouter from './routes/brand-profiles.ts';
 import copyRouter from './routes/copy.ts';
 import contentRouter from './routes/content.ts';
 import carouselRouter from './routes/carousel.ts';
+import staticPostRouter from './routes/static-post.ts';
 import { errorHandler } from './middleware/error-handler.ts';
 
 const app = express();
@@ -54,6 +55,9 @@ app.use('/content', contentRouter);
 
 // Carousel generation routes (Story 2.2)
 app.use('/carousel', carouselRouter);
+
+// Static post generation routes (Story 2.3)
+app.use('/static-post', staticPostRouter);
 
 app.post('/content/generate-package', (req: Request, res: Response) => {
   res.status(501).json({ error: 'Not implemented' });
