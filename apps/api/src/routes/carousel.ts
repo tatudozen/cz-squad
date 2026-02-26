@@ -7,7 +7,6 @@
 
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { generateCarousel } from '../services/content/generators';
 import { logger } from '../utils/logger';
 
 const router = Router();
