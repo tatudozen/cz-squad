@@ -1,0 +1,266 @@
+---
+/**
+ * Dynamic Carousel Page
+ * Renders carousel data with design briefs
+ *
+ * Story 2.5: Carousel Astro Component
+ */
+
+import Carousel from '../../components/Carousel.astro';
+import Layout from '../../layouts/Layout.astro';
+
+// Mock carousel ID from URL
+const { carousel_id } = Astro.params;
+
+// Mock carousel data (in production, would fetch from API)
+const mockCarousel = {
+  id: carousel_id || 'carousel-123',
+  plan_item_id: 'plan-456',
+  brand_profile_id: 'profile-789',
+  client_id: 'client-111',
+  mode: 'inception',
+  slides: [
+    {
+      slide_number: 1,
+      main_text: 'Transform Your Health Journey',
+      support_text: 'Discover proven strategies for wellness',
+      design_note: '🎯 Bold headline with gradient background',
+      is_cover: true,
+      is_cta: false,
+    },
+    {
+      slide_number: 2,
+      main_text: 'The Challenge: Many ignore preventive care',
+      support_text: 'Leading to health crises later',
+      design_note: '📊 Problem visualization with statistics',
+      is_cover: false,
+      is_cta: false,
+    },
+    {
+      slide_number: 3,
+      main_text: 'The Solution: Preventive medicine approach',
+      support_text: 'Catch issues before they become serious',
+      design_note: '✨ Solution flow chart',
+      is_cover: false,
+      is_cta: false,
+    },
+    {
+      slide_number: 4,
+      main_text: 'Success Stories: Real results from patients',
+      support_text: 'Average 30% improvement in health metrics',
+      design_note: '👥 Testimonial carousel with metrics',
+      is_cover: false,
+      is_cta: false,
+    },
+    {
+      slide_number: 5,
+      main_text: 'The Time to Act Is Now',
+      support_text: 'Limited availability for new patients',
+      design_note: '⏰ Urgency visual with countdown',
+      is_cover: false,
+      is_cta: false,
+    },
+    {
+      slide_number: 6,
+      main_text: 'Book Your Consultation Today',
+      support_text: 'First assessment is FREE',
+      design_note: '🎁 CTA button with offer highlight',
+      is_cover: false,
+      is_cta: true,
+    },
+  ],
+  caption: 'Transform your health today! Schedule your free preventive care assessment.',
+  design_brief: 'Modern, professional aesthetic with blue and teal accents.',
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+};
+
+// Mock design brief data
+const mockDesignBrief = {
+  id: 'brief-111',
+  carousel_id: carousel_id || 'carousel-123',
+  brand_profile_id: 'profile-789',
+  client_id: 'client-111',
+  content_type: 'carousel' as const,
+  color_palette: [
+    { name: 'Primary', hex: '#06164A', usage: 'Headlines and CTAs' },
+    { name: 'Secondary', hex: '#6220FF', usage: 'Accent elements' },
+    { name: 'Accent', hex: '#A1C8F7', usage: 'Supporting elements' },
+    { name: 'Neutral', hex: '#F5F5F5', usage: 'Backgrounds' },
+  ],
+  typography: {
+    heading: 'Poppins Bold, 28-32px',
+    body: 'Inter Regular, 14-16px',
+    accent: 'Muli SemiBold, 18-20px',
+  },
+  spacing_guidelines: 'Base unit: 16px. Scale: 8px, 16px, 24px, 32px',
+  layout_guidelines: '12-column grid system, mobile-first responsive design',
+  imagery_style: 'Modern professional photography with subtle overlays',
+  slides_briefs: [
+    {
+      slide_number: 1,
+      design_note: '🎯 Bold hero image with overlay text',
+      composition: 'Full-width hero with text overlay in bottom third',
+      color_focus: 'Primary blue (#06164A) with white text',
+    },
+    {
+      slide_number: 2,
+      design_note: '📊 Data visualization with statistics',
+      composition: 'Split layout: 60% image, 40% stats',
+      color_focus: 'Secondary purple (#6220FF) for emphasis',
+    },
+    {
+      slide_number: 3,
+      design_note: '✨ Solution flow chart',
+      composition: 'Centered infographic with arrows',
+      color_focus: 'Accent blue (#A1C8F7) for flow',
+    },
+    {
+      slide_number: 4,
+      design_note: '👥 Testimonial carousel with metrics',
+      composition: 'Grid of 3x testimonials',
+      color_focus: 'Neutral background with accent highlights',
+    },
+    {
+      slide_number: 5,
+      design_note: '⏰ Urgency visual with countdown',
+      composition: 'Large countdown timer in center',
+      color_focus: 'Primary color with urgency accent',
+    },
+    {
+      slide_number: 6,
+      design_note: '🎁 CTA button with offer highlight',
+      composition: 'Centered large button with offer badge',
+      color_focus: 'Primary button on neutral background',
+    },
+  ],
+  overall_aesthetic: 'Professional, modern, trustworthy brand aesthetic',
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+};
+---
+
+<Layout title={`Carousel: ${carousel_id}`}>
+  <main>
+    <article>
+      <header>
+        <h1>Carousel Preview</h1>
+        <p>Carousel ID: <code>{carousel_id}</code></p>
+        <p>Mode: <strong>{mockCarousel.mode}</strong></p>
+      </header>
+
+      <section>
+        <Carousel
+          carousel={mockCarousel}
+          designBrief={mockDesignBrief}
+          autoPlay={true}
+          autoPlayDuration={5000}
+        />
+      </section>
+
+      <section>
+        <h2>Carousel Information</h2>
+        <p>{mockCarousel.caption}</p>
+        <p><em>{mockCarousel.design_brief}</em></p>
+      </section>
+
+      <section>
+        <h2>Keyboard Shortcuts</h2>
+        <ul>
+          <li><kbd>←</kbd> Previous slide</li>
+          <li><kbd>→</kbd> Next slide</li>
+          <li><kbd>Space</kbd> Play/Pause</li>
+          <li><kbd>Tab</kbd> Navigate to indicators</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Mobile Support</h2>
+        <p>Swipe left/right to navigate on touch devices. Touch and hold to pause auto-play.</p>
+      </section>
+    </article>
+  </main>
+</Layout>
+
+<style>
+  main {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+
+  article {
+    display: grid;
+    gap: 2rem;
+  }
+
+  header {
+    border-bottom: 2px solid #e5e5e5;
+    padding-bottom: 1.5rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+    margin: 0 0 1rem 0;
+    color: #06164A;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    margin: 0 0 1rem 0;
+    color: #333;
+  }
+
+  p {
+    margin: 0 0 0.5rem 0;
+    color: #666;
+    line-height: 1.6;
+  }
+
+  code {
+    background: #f5f5f5;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    color: #d73a49;
+  }
+
+  section {
+    padding: 1rem;
+    border-radius: 8px;
+    background: #f9f9f9;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 1.5rem;
+  }
+
+  li {
+    margin-bottom: 0.5rem;
+  }
+
+  kbd {
+    background: #333;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  @media (max-width: 768px) {
+    main {
+      margin: 1rem auto;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+    }
+  }
+</style>

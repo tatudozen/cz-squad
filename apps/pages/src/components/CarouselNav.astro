@@ -1,0 +1,190 @@
+---
+/**
+ * CarouselNav Component
+ * Navigation controls for carousel (arrows, auto-play toggle)
+ *
+ * Story 2.5: Carousel Astro Component
+ */
+
+interface Props {
+  carouselId: string;
+  slideCount: number;
+  autoPlay?: boolean;
+}
+
+const { carouselId, slideCount, autoPlay = true } = Astro.props;
+---
+
+<style>
+  .carousel-nav {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .nav-button {
+    pointer-events: auto;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    color: #333;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .nav-button:hover {
+    background: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: scale(1.1);
+  }
+
+  .nav-button:active {
+    transform: scale(0.95);
+  }
+
+  .nav-button:focus {
+    outline: 2px solid #6220ff;
+    outline-offset: 2px;
+  }
+
+  .nav-button.prev {
+    margin-right: auto;
+  }
+
+  .nav-button.next {
+    margin-left: auto;
+  }
+
+  .controls {
+    position: absolute;
+    bottom: 4rem;
+    right: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    pointer-events: auto;
+    z-index: 2;
+  }
+
+  .control-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .control-btn:hover {
+    background: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .control-btn:focus {
+    outline: 2px solid #6220ff;
+    outline-offset: 2px;
+  }
+
+  .control-btn.active {
+    background: #6220ff;
+    color: white;
+  }
+
+  @media (max-width: 640px) {
+    .carousel-nav {
+      padding: 0 0.75rem;
+    }
+
+    .nav-button {
+      width: 36px;
+      height: 36px;
+      font-size: 1.25rem;
+    }
+
+    .controls {
+      bottom: 3rem;
+      right: 0.75rem;
+    }
+
+    .control-btn {
+      width: 32px;
+      height: 32px;
+      font-size: 0.75rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .carousel-nav {
+      padding: 0 0.5rem;
+    }
+
+    .nav-button {
+      width: 32px;
+      height: 32px;
+      font-size: 1.125rem;
+    }
+
+    .controls {
+      bottom: 2.5rem;
+      right: 0.5rem;
+    }
+  }
+</style>
+
+<nav class="carousel-nav" role="navigation" aria-label="Carousel navigation">
+  <button
+    class="nav-button prev"
+    aria-label="Previous slide"
+    onclick={`window.carouselManager?.prevSlide('${carouselId}')`}
+  >
+    ←
+  </button>
+
+  <button
+    class="nav-button next"
+    aria-label="Next slide"
+    onclick={`window.carouselManager?.nextSlide('${carouselId}')`}
+  >
+    →
+  </button>
+
+  <div class="controls">
+    <button
+      class={`control-btn ${autoPlay ? 'active' : ''}`}
+      aria-label={autoPlay ? 'Pause slideshow' : 'Play slideshow'}
+      title={autoPlay ? 'Pause (Space)' : 'Play (Space)'}
+      onclick={`(function() {
+        const carousel = window.carouselManager?.carousels['${carouselId}'];
+        if (carousel) {
+          carousel.autoPlay = !carousel.autoPlay;
+          if (carousel.autoPlay) carousel.startAutoPlay();
+          else carousel.pauseAutoPlay();
+          this.classList.toggle('active');
+        }
+      }).call(this)`}
+    >
+      {autoPlay ? '⏸' : '▶'}
+    </button>
+  </div>
+</nav>
