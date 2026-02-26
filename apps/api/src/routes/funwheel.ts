@@ -1,95 +1,63 @@
 /**
- * FunWheel Routes
- * REST API endpoints for funwheel funnel stages
- *
- * Story 3.2: FunWheel Etapa R - Retenção
+ * FunWheel Funnel Endpoints
+ * Routes for managing FunWheel stages (Apresentação, Retenção, etc.)
  */
 
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { logger } from '../utils/logger';
+import { BrandProfileRepository, BriefingRepository } from '@shared/repositories/index.js';
+import { generatePresentation } from '../services/funwheel/generators/presentation.js';
+import { ApiError } from '../middleware/error-handler.js';
 
 const router = Router();
 
-/**
- * POST /funwheel/retention
- * Capture lead from Etapa R form
- */
-
-const captureLeadSchema = z.object({
-  presentation_id: z.string().uuid(),
-  brand_profile_id: z.string().uuid(),
-  name: z.string().min(2).max(100),
-  email: z.string().email(),
-  phone: z.string().regex(/^\d{10,}$/),
-  qualifier: z.string().optional(),
+// Request validation schema
+const GeneratePresentationSchema = z.object({
+  briefing_id: z.string().uuid('Invalid briefing ID'),
+  brand_profile_id: z.string().uuid('Invalid brand profile ID'),
+  client_id: z.string().uuid('Invalid client ID'),
 });
 
-type CaptureLeadRequest = z.infer<typeof captureLeadSchema>;
-
-router.post('/retention', async (req: Request, res: Response) => {
-  const requestId = req.id;
-  const startTime = Date.now();
-
+/**
+ * POST /funwheel/presentation
+ * Generate a transformation narrative landing page (Etapa A)
+ */
+router.post('/presentation', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const validatedData = captureLeadSchema.parse(req.body);
-    const body = validatedData as CaptureLeadRequest;
+    // Validate request
+    const validatedData = GeneratePresentationSchema.parse(req.body);
 
-    logger.info('POST /funwheel/retention received', {
-      requestId,
-      email: body.email,
-      presentation_id: body.presentation_id,
-    });
-
-    // Placeholder response
-    const lead = {
-      id: 'lead-' + Date.now(),
-      presentation_id: body.presentation_id,
-      brand_profile_id: body.brand_profile_id,
-      client_id: 'client-123',
-      name: body.name,
-      email: body.email,
-      phone: body.phone,
-      qualifier: body.qualifier,
-      lead_magnet_url: `https://storage.example.com/lead-magnets/${body.presentation_id}.pdf`,
-      thank_you_page_url: `/funwheel/thank-you/${Date.now()}`,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-
-    const duration = Date.now() - startTime;
-    logger.info('Lead captured successfully', {
-      requestId,
-      lead_id: lead.id,
-      duration_ms: duration,
-    });
-
-    return res.status(201).json(lead);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      logger.warn('Validation error on POST /funwheel/retention', {
-        requestId,
-        errors: error.errors,
-      });
-
-      return res.status(400).json({
-        error_code: 'VALIDATION_ERROR',
-        message: 'Invalid form data',
-        timestamp: new Date().toISOString(),
-        details: error.errors,
-      });
+    // Fetch briefing
+    const briefing = await BriefingRepository.getById(validatedData.briefing_id);
+    if (!briefing) {
+      throw new ApiError(404, 'BRIEFING_NOT_FOUND', 'Briefing not found');
     }
 
-    logger.error('Lead capture failed', {
-      requestId,
-      error: String(error),
-    });
+    // Fetch brand profile
+    const brandProfile = await BrandProfileRepository.getById(validatedData.brand_profile_id);
+    if (!brandProfile) {
+      throw new ApiError(404, 'BRAND_PROFILE_NOT_FOUND', 'Brand profile not found');
+    }
 
-    return res.status(500).json({
-      error_code: 'LEAD_CAPTURE_FAILED',
-      message: 'Failed to capture lead',
+    // Generate presentation
+    const presentation = await generatePresentation(
+      briefing,
+      brandProfile,
+      validatedData.client_id,
+      validatedData.briefing_id,
+      validatedData.brand_profile_id
+    );
+
+    // Log success
+    // eslint-disable-next-line no-console
+    console.log(`[PRESENTATION_CREATED] id=${presentation.id} briefing_id=${validatedData.briefing_id}`);
+
+    res.status(201).json({
+      data: presentation,
       timestamp: new Date().toISOString(),
     });
+  } catch (error) {
+    next(error);
   }
 });
 

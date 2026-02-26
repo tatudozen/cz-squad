@@ -2,9 +2,9 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
     "resolveJsonModule": true,
-    "lib": ["ES2020"]
+    "lib": ["ES2020"],
+    "skipLibCheck": true
   },
   "include": ["src"],
   "exclude": ["**/*.test.ts", "dist", "tests"]
