@@ -1,0 +1,472 @@
+---
+/**
+ * RetentionPage Component (FunWheel Etapa R)
+ * Lead capture form with lead magnet preview
+ */
+
+import FunWheelLayout from '../../layouts/FunWheelLayout.astro';
+import { validateEmail, validatePhone, formatPhone } from './FormValidation.js';
+import type { Presentation } from '@shared/supabase.js';
+import type { BrandProfile } from '@shared/supabase.js';
+
+interface Props {
+  presentation: Presentation;
+  brandProfile: BrandProfile;
+  presentationId: string;
+}
+
+const { presentation, brandProfile, presentationId } = Astro.props;
+---
+
+<FunWheelLayout
+  title="Acesse seu Material Completo"
+  description="Receba o PDF com a apresentação completa"
+  brandProfile={brandProfile}
+>
+  <div class="retention-page">
+    <section class="hero-section">
+      <div class="container">
+        <h1>Seu Primeiro Passo Começa Aqui</h1>
+        <p>Receba a apresentação completa e descubra como você pode transformar seus resultados</p>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <div class="container grid-layout">
+        <!-- Lead Magnet Preview -->
+        <div class="preview-column">
+          <div class="pdf-preview">
+            <div class="pdf-icon">📄</div>
+            <h2>Material Gratuito</h2>
+            <p class="preview-title">{presentation.hero.headline}</p>
+            <ul class="preview-contents">
+              <li>✓ Análise completa do problema</li>
+              <li>✓ Solução passo a passo</li>
+              <li>✓ Casos de sucesso</li>
+              <li>✓ Próximas ações recomendadas</li>
+            </ul>
+            <p class="preview-note">Você receberá o PDF por email imediatamente após enviar</p>
+          </div>
+        </div>
+
+        <!-- Lead Capture Form -->
+        <div class="form-column">
+          <form id="retention-form" class="retention-form">
+            <div class="form-group">
+              <label for="name">Seu Nome *</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder="João Silva"
+                required
+                minlength="2"
+              />
+              <span class="error-message" id="name-error"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email *</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="seu@email.com"
+                required
+              />
+              <span class="error-message" id="email-error"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Telefone / WhatsApp *</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                placeholder="(11) 99999-9999"
+                required
+              />
+              <span class="error-message" id="phone-error"></span>
+            </div>
+
+            <div class="form-group checkbox">
+              <input
+                type="checkbox"
+                id="consent"
+                name="consent"
+                required
+              />
+              <label for="consent">
+                Concordo em receber comunicações sobre este material e outras ofertas relevantes
+              </label>
+            </div>
+
+            <button type="submit" class="button primary large">
+              Acessar Material Gratuito →
+            </button>
+
+            <p class="form-note">Respeitamos sua privacidade. Seus dados não serão compartilhados.</p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonial Section -->
+    <section class="testimonial-section" style="background: linear-gradient(135deg, var(--brand-accent) 0%, var(--brand-secondary) 100%);">
+      <div class="container">
+        <h2>Depoimentos de Quem Usou</h2>
+        <div class="testimonials-grid">
+          {
+            presentation.proof_social.testimonials.slice(0, 2).map((testimonial) => (
+              <div class="testimonial">
+                <p class="stars">★★★★★</p>
+                <p class="quote">"{testimonial.quote}"</p>
+                <p class="author">{testimonial.author}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  </div>
+</FunWheelLayout>
+
+<style define:vars={{
+  '--brand-primary': brandProfile.color_palette.primary,
+  '--brand-secondary': brandProfile.color_palette.secondary,
+  '--brand-accent': brandProfile.color_palette.accent,
+}}>
+  .retention-page {
+    width: 100%;
+  }
+
+  /* Hero Section */
+  .hero-section {
+    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
+    color: white;
+    padding: 4rem 2rem;
+    text-align: center;
+  }
+
+  .hero-section h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .hero-section p {
+    font-size: 1.25rem;
+    margin: 0;
+    opacity: 0.95;
+  }
+
+  /* Content Section */
+  .content-section {
+    padding: 4rem 2rem;
+  }
+
+  .grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* PDF Preview */
+  .pdf-preview {
+    background: white;
+    border: 2px solid var(--brand-accent);
+    border-radius: 12px;
+    padding: 3rem 2rem;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .pdf-preview:hover {
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px);
+  }
+
+  .pdf-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+
+  .pdf-preview h2 {
+    color: var(--brand-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .preview-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 2rem;
+  }
+
+  .preview-contents {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 2rem;
+    text-align: left;
+  }
+
+  .preview-contents li {
+    padding: 0.75rem 0;
+    color: #666;
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  .preview-contents li:last-child {
+    border-bottom: none;
+  }
+
+  .preview-note {
+    font-size: 0.875rem;
+    color: #999;
+    font-style: italic;
+  }
+
+  /* Form */
+  .retention-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+  }
+
+  .form-group input {
+    padding: 0.75rem;
+    border: 2px solid #e5e5e5;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-group input:focus {
+    outline: none;
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px rgba(6, 22, 74, 0.1);
+  }
+
+  .form-group input:invalid {
+    border-color: #d32f2f;
+  }
+
+  .form-group.checkbox {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .form-group.checkbox input {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    cursor: pointer;
+  }
+
+  .form-group.checkbox label {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  .error-message {
+    color: #d32f2f;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: none;
+  }
+
+  .error-message.show {
+    display: block;
+  }
+
+  .form-note {
+    text-align: center;
+    font-size: 0.875rem;
+    color: #999;
+  }
+
+  .button.large {
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+  }
+
+  /* Testimonial Section */
+  .testimonial-section {
+    padding: 4rem 2rem;
+    color: white;
+    text-align: center;
+  }
+
+  .testimonial-section h2 {
+    color: white;
+    margin-bottom: 3rem;
+  }
+
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .testimonial {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .stars {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .quote {
+    font-style: italic;
+    margin-bottom: 1rem;
+  }
+
+  .author {
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero-section h1 {
+      font-size: 1.75rem;
+    }
+
+    .hero-section p {
+      font-size: 1rem;
+    }
+
+    .grid-layout {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .pdf-preview {
+      padding: 2rem 1.5rem;
+    }
+
+    .pdf-icon {
+      font-size: 3rem;
+    }
+
+    .preview-title {
+      font-size: 1rem;
+    }
+
+    .content-section {
+      padding: 2rem 1rem;
+    }
+
+    .testimonial-section {
+      padding: 2rem 1rem;
+    }
+
+    .testimonials-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  // Form validation on client-side
+  const form = document.getElementById('retention-form') as HTMLFormElement;
+  const nameInput = form.querySelector('#name') as HTMLInputElement;
+  const emailInput = form.querySelector('#email') as HTMLInputElement;
+  const phoneInput = form.querySelector('#phone') as HTMLInputElement;
+  const consentCheckbox = form.querySelector('#consent') as HTMLInputElement;
+
+  // Format phone input
+  phoneInput?.addEventListener('input', (e) => {
+    const target = e.target as HTMLInputElement;
+    const cleaned = target.value.replace(/\D/g, '');
+    if (cleaned.length === 10) {
+      target.value = `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`;
+    } else if (cleaned.length === 11) {
+      target.value = `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`;
+    }
+  });
+
+  // Form submission
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // Validate
+    let isValid = true;
+
+    // Name validation
+    if (!nameInput?.value || nameInput.value.length < 2) {
+      showError('name-error', 'Nome deve ter pelo menos 2 caracteres');
+      isValid = false;
+    } else {
+      hideError('name-error');
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailInput?.value || !emailRegex.test(emailInput.value)) {
+      showError('email-error', 'Email inválido');
+      isValid = false;
+    } else {
+      hideError('email-error');
+    }
+
+    // Phone validation
+    const phoneRegex = /^\(\d{2}\)\s?\d{8,9}$/;
+    if (!phoneInput?.value || !phoneRegex.test(phoneInput.value.replace(/\s/g, ''))) {
+      showError('phone-error', 'Telefone inválido. Use formato: (11) 99999-9999');
+      isValid = false;
+    } else {
+      hideError('phone-error');
+    }
+
+    // Consent validation
+    if (!consentCheckbox?.checked) {
+      alert('Você deve concordar com os termos antes de continuar');
+      isValid = false;
+    }
+
+    if (isValid) {
+      // Success - would submit to API in production
+      alert('Obrigado! Verifique seu email para acessar o material.');
+      form.reset();
+    }
+  });
+
+  function showError(elementId: string, message: string) {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.textContent = message;
+      element.classList.add('show');
+    }
+  }
+
+  function hideError(elementId: string) {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.textContent = '';
+      element.classList.remove('show');
+    }
+  }
+</script>

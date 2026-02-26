@@ -1,0 +1,479 @@
+---
+/**
+ * QualificationPage Component (FunWheel Etapa T)
+ * Interactive qualification quiz
+ */
+
+import FunWheelLayout from '../../layouts/FunWheelLayout.astro';
+import type { QualificationQuiz } from '@shared/supabase.js';
+import type { BrandProfile } from '@shared/supabase.js';
+
+interface Props {
+  quiz: QualificationQuiz;
+  brandProfile: BrandProfile;
+  leadId: string;
+}
+
+const { quiz, brandProfile, leadId } = Astro.props;
+---
+
+<FunWheelLayout
+  title="Entenda Seu Potencial"
+  description="Responda nosso breve questionário de qualificação"
+  brandProfile={brandProfile}
+>
+  <div class="qualification-page">
+    <section class="hero-section">
+      <div class="container">
+        <h1>Qual é o Seu Nível de Interesse?</h1>
+        <p>Responda 5 perguntas rápidas para receber uma avaliação personalizada</p>
+        <div class="progress-bar">
+          <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="quiz-section">
+      <div class="container">
+        <form id="quiz-form" class="quiz-form">
+          <!-- Questions Container -->
+          <div id="questions-container" class="questions-container">
+            {
+              quiz.questions.map((question, index) => (
+                <div
+                  class="question-card"
+                  id={`question-${question.id}`}
+                  style={`display: ${index === 0 ? 'block' : 'none'}`}
+                >
+                  <div class="question-header">
+                    <span class="question-number">Pergunta {index + 1} de {quiz.questions.length}</span>
+                    <span class="question-theme">{question.theme}</span>
+                  </div>
+
+                  <h2>{question.question}</h2>
+
+                  <div class="answers-list">
+                    {question.answers.map((answer, answerIndex) => (
+                      <label class="answer-option">
+                        <input
+                          type="radio"
+                          name={question.id}
+                          value={answerIndex.toString()}
+                          required
+                        />
+                        <span class="answer-text">{answer.text}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+
+          <!-- Success Message (Hidden by default) -->
+          <div id="success-message" class="success-message" style="display: none;">
+            <h2 id="result-title">Sua Avaliação</h2>
+            <div id="result-content" class="result-content">
+              <p id="result-message">Carregando resultado...</p>
+              <p id="result-cta">
+                <strong></strong>
+              </p>
+            </div>
+          </div>
+
+          <!-- Navigation -->
+          <div class="button-group">
+            <button
+              type="button"
+              id="prev-button"
+              class="button secondary"
+              style="display: none;"
+            >
+              ← Anterior
+            </button>
+            <button type="button" id="next-button" class="button primary">
+              Próxima →
+            </button>
+            <button type="submit" id="submit-button" class="button primary" style="display: none;">
+              Enviar Respostas
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+</FunWheelLayout>
+
+<style define:vars={{
+  '--brand-primary': brandProfile.color_palette.primary,
+  '--brand-secondary': brandProfile.color_palette.secondary,
+  '--brand-accent': brandProfile.color_palette.accent,
+}}>
+  .qualification-page {
+    width: 100%;
+  }
+
+  /* Hero Section */
+  .hero-section {
+    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
+    color: white;
+    padding: 3rem 2rem;
+    text-align: center;
+  }
+
+  .hero-section h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-section p {
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+    opacity: 0.95;
+  }
+
+  /* Progress Bar */
+  .progress-bar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 1rem;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: white;
+    transition: width 0.3s ease;
+  }
+
+  /* Quiz Section */
+  .quiz-section {
+    padding: 4rem 2rem;
+    background: #f9f9f9;
+    min-height: calc(100vh - 200px);
+  }
+
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .quiz-form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  /* Questions Container */
+  .questions-container {
+    position: relative;
+  }
+
+  .question-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    animation: slideIn 0.3s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--brand-accent);
+  }
+
+  .question-number {
+    font-size: 0.875rem;
+    color: #999;
+    font-weight: 500;
+  }
+
+  .question-theme {
+    display: inline-block;
+    background: var(--brand-accent);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .question-card h2 {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    color: var(--brand-primary);
+  }
+
+  /* Answers */
+  .answers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .answer-option {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 2px solid #e5e5e5;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .answer-option:hover {
+    border-color: var(--brand-accent);
+    background: rgba(161, 200, 247, 0.05);
+  }
+
+  .answer-option input[type='radio'] {
+    width: 20px;
+    height: 20px;
+    margin-right: 1rem;
+    cursor: pointer;
+    accent-color: var(--brand-primary);
+  }
+
+  .answer-option input[type='radio']:checked + .answer-text {
+    color: var(--brand-primary);
+    font-weight: 600;
+  }
+
+  .answer-text {
+    flex: 1;
+    color: #333;
+  }
+
+  /* Success Message */
+  .success-message {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    text-align: center;
+    animation: slideIn 0.3s ease-out;
+  }
+
+  .success-message h2 {
+    color: var(--brand-primary);
+    margin-bottom: 2rem;
+  }
+
+  .result-content {
+    padding: 2rem;
+    background: var(--brand-accent);
+    border-radius: 8px;
+    color: white;
+  }
+
+  .result-content p {
+    margin: 0.5rem 0;
+    font-size: 1.125rem;
+  }
+
+  #result-message {
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+
+  /* Button Group */
+  .button-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+
+  .button {
+    flex: 1;
+    max-width: 200px;
+    padding: 0.75rem 1.5rem;
+  }
+
+  .button.primary {
+    background: var(--brand-primary);
+    color: white;
+  }
+
+  .button.secondary {
+    background: transparent;
+    border: 2px solid var(--brand-primary);
+    color: var(--brand-primary);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero-section h1 {
+      font-size: 1.5rem;
+    }
+
+    .hero-section p {
+      font-size: 1rem;
+    }
+
+    .quiz-section {
+      padding: 2rem 1rem;
+    }
+
+    .question-card {
+      padding: 1.5rem;
+    }
+
+    .question-card h2 {
+      font-size: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .button-group {
+      flex-direction: column;
+    }
+
+    .button {
+      max-width: 100%;
+    }
+  }
+</style>
+
+<script>
+  interface QuizData {
+    questions: Array<{
+      id: string;
+      question: string;
+      answers: Array<{ text: string; points: number }>;
+    }>;
+  }
+
+  const quizData: QuizData = JSON.parse(
+    (document.querySelector('script[data-quiz]') as HTMLScriptElement)?.textContent || '{}'
+  );
+
+  const form = document.getElementById('quiz-form') as HTMLFormElement;
+  const questionsContainer = document.getElementById('questions-container') as HTMLElement;
+  const successMessage = document.getElementById('success-message') as HTMLElement;
+  const prevButton = document.getElementById('prev-button') as HTMLButtonElement;
+  const nextButton = document.getElementById('next-button') as HTMLButtonElement;
+  const submitButton = document.getElementById('submit-button') as HTMLButtonElement;
+  const progressFill = document.getElementById('progress-fill') as HTMLElement;
+
+  let currentQuestion = 0;
+  const responses: Record<string, number> = {};
+
+  // Navigation
+  function showQuestion(index: number) {
+    currentQuestion = index;
+    const questions = Array.from(questionsContainer.querySelectorAll('.question-card'));
+
+    questions.forEach((q, i) => {
+      (q as HTMLElement).style.display = i === index ? 'block' : 'none';
+    });
+
+    // Update buttons
+    prevButton.style.display = index > 0 ? 'block' : 'none';
+    nextButton.style.display = index < questions.length - 1 ? 'block' : 'none';
+    submitButton.style.display = index === questions.length - 1 ? 'block' : 'none';
+
+    // Update progress
+    const progress = ((index + 1) / questions.length) * 100;
+    progressFill.style.width = `${progress}%`;
+  }
+
+  prevButton?.addEventListener('click', () => {
+    if (currentQuestion > 0) {
+      showQuestion(currentQuestion - 1);
+    }
+  });
+
+  nextButton?.addEventListener('click', () => {
+    const questions = Array.from(questionsContainer.querySelectorAll('.question-card'));
+    const currentQuestionId = (questions[currentQuestion] as HTMLElement).id.replace(
+      'question-',
+      ''
+    );
+
+    // Check if answered
+    const radioButtons = form.querySelectorAll(
+      `input[name="${currentQuestionId}"]:checked`
+    ) as NodeListOf<HTMLInputElement>;
+    if (radioButtons.length === 0) {
+      alert('Por favor, selecione uma resposta antes de continuar.');
+      return;
+    }
+
+    if (currentQuestion < questions.length - 1) {
+      showQuestion(currentQuestion + 1);
+    }
+  });
+
+  // Form submission
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // Collect responses
+    const questions = Array.from(questionsContainer.querySelectorAll('.question-card'));
+    let totalScore = 0;
+
+    questions.forEach((q) => {
+      const questionId = (q as HTMLElement).id.replace('question-', '');
+      const selectedAnswer = form.querySelector(
+        `input[name="${questionId}"]:checked`
+      ) as HTMLInputElement;
+      if (selectedAnswer) {
+        const answerIndex = parseInt(selectedAnswer.value);
+        // Mock scoring: just count points (in production, would use quiz data)
+        totalScore += answerIndex * 25;
+      }
+    });
+
+    // Calculate tier
+    const normalizedScore = Math.min(100, Math.round(totalScore / questions.length));
+    let tier = 'cold';
+    let resultMessage = '';
+
+    if (normalizedScore >= 75) {
+      tier = 'hot';
+      resultMessage = 'Parabéns! Você está pronto para dar o próximo passo importante.';
+    } else if (normalizedScore >= 50) {
+      tier = 'warm';
+      resultMessage = 'Ótimo! Você tem muito potencial. Vamos explorar as oportunidades.';
+    } else {
+      tier = 'cold';
+      resultMessage = 'Excelente ter você aqui. Vamos fornecer mais recursos educativos.';
+    }
+
+    // Show success message
+    questionsContainer.style.display = 'none';
+    successMessage.style.display = 'block';
+    nextButton.style.display = 'none';
+    prevButton.style.display = 'none';
+    submitButton.style.display = 'none';
+
+    const resultMessage_ = document.getElementById('result-message') as HTMLElement;
+    const resultCta = document.getElementById('result-cta') as HTMLElement;
+    if (resultMessage_) resultMessage_.textContent = resultMessage;
+    if (resultCta) resultCta.innerHTML = `<strong>Score: ${normalizedScore}/100 (${tier.toUpperCase()})</strong>`;
+  });
+
+  // Initialize
+  showQuestion(0);
+</script>
+
+<script type="application/json" data-quiz>
+  {
+    "questions": "placeholder"
+  }
+</script>

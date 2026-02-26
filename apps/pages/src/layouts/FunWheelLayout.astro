@@ -1,0 +1,253 @@
+---
+/**
+ * FunWheel Layout Component
+ * Base layout for all FunWheel pages with brand integration
+ */
+
+import type { BrandProfile } from '@shared/supabase.js';
+
+interface Props {
+  title: string;
+  description?: string;
+  brandProfile?: BrandProfile;
+}
+
+const { title, description = 'FunWheel - Sales Funnel', brandProfile } = Astro.props;
+
+// Map brand profile to CSS variables
+const cssVariables = brandProfile
+  ? {
+      '--brand-primary': brandProfile.color_palette.primary,
+      '--brand-secondary': brandProfile.color_palette.secondary,
+      '--brand-accent': brandProfile.color_palette.accent,
+      '--brand-neutral': brandProfile.color_palette.neutral || '#F5F5F5',
+      '--font-heading': brandProfile.font_recommendations?.heading || 'sans-serif',
+      '--font-body': brandProfile.font_recommendations?.body || 'sans-serif',
+    }
+  : {};
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  </head>
+  <body>
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>
+
+<style define:vars={cssVariables} is:global>
+  :root {
+    --brand-primary: #06164a;
+    --brand-secondary: #6220ff;
+    --brand-accent: #a1c8f7;
+    --brand-neutral: #f5f5f5;
+    --font-heading: 'Poppins', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    --color-text: #1a1a1a;
+    --color-text-light: #666;
+    --color-bg: #fff;
+    --color-border: #e5e5e5;
+    --color-error: #d32f2f;
+    --color-success: #2e7d32;
+
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+    --spacing-2xl: 4rem;
+
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--color-text);
+    background: var(--color-bg);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  main {
+    min-height: 100vh;
+    width: 100%;
+  }
+
+  /* Typography */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: var(--spacing-md);
+  }
+
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+  }
+
+  h4 {
+    font-size: 1.25rem;
+  }
+
+  p {
+    margin-bottom: var(--spacing-md);
+    color: var(--color-text-light);
+    line-height: 1.6;
+  }
+
+  a {
+    color: var(--brand-primary);
+    text-decoration: none;
+    transition: var(--transition);
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  /* Buttons */
+  button,
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+
+    &.primary {
+      background: var(--brand-primary);
+      color: white;
+
+      &:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(6, 22, 74, 0.2);
+      }
+    }
+
+    &.secondary {
+      background: var(--brand-secondary);
+      color: white;
+
+      &:hover {
+        opacity: 0.9;
+      }
+    }
+
+    &.outline {
+      background: transparent;
+      border: 2px solid var(--brand-primary);
+      color: var(--brand-primary);
+
+      &:hover {
+        background: var(--brand-primary);
+        color: white;
+      }
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  /* Forms */
+  input,
+  textarea,
+  select {
+    width: 100%;
+    padding: var(--spacing-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    transition: var(--transition);
+
+    &:focus {
+      outline: none;
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 3px rgba(6, 22, 74, 0.1);
+    }
+
+    &:disabled {
+      background: var(--color-border);
+      cursor: not-allowed;
+    }
+  }
+
+  /* Responsive Typography */
+  @media (max-width: 640px) {
+    h1 {
+      font-size: 1.75rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+    }
+
+    p {
+      font-size: 0.95rem;
+    }
+  }
+
+  /* Accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+</style>
