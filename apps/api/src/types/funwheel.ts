@@ -132,3 +132,33 @@ export type GenerateQualificationRequest = {
   briefing_id: string;
   responses: Record<string, number>;
 };
+
+// Etapa Pipeline: Lead Orchestration
+export type LeadEventType =
+  | 'created'
+  | 'qualified'
+  | 'scored'
+  | 'notified'
+  | 'webhook_sent';
+
+export interface LeadEventData {
+  qualification_tier?: QualificationTier;
+  lead_name: string;
+  email: string;
+  phone: string; // Brazilian format: (XX) 9XXXX-XXXX
+  campaign_id: string;
+  presentation_id: string;
+  qualification_score?: number;
+}
+
+export interface LeadEvent {
+  id: string;
+  lead_id: string;
+  event_type: LeadEventType;
+  event_data: LeadEventData;
+  webhook_sent: boolean;
+  webhook_response?: string;
+  retry_count: number;
+  created_at: string;
+  updated_at: string;
+}
