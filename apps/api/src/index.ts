@@ -8,6 +8,7 @@ import contentRouter from './routes/content.ts';
 import carouselRouter from './routes/carousel.ts';
 import staticPostRouter from './routes/static-post.ts';
 import designBriefRouter from './routes/design-brief.ts';
+import funwheelRouter from './routes/funwheel.ts';
 import { errorHandler } from './middleware/error-handler.ts';
 
 const app = express();
@@ -62,6 +63,9 @@ app.use('/static-post', staticPostRouter);
 
 // Design brief generation routes (Story 2.4)
 app.use('/design-brief', designBriefRouter);
+
+// FunWheel routes (Story 3.2+)
+app.use('/funwheel', funwheelRouter);
 
 app.post('/content/generate-package', (req: Request, res: Response) => {
   res.status(501).json({ error: 'Not implemented' });
