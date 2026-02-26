@@ -1,0 +1,77 @@
+---
+/**
+ * Main Layout Component
+ * Base layout for all pages in the application
+ */
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = 'CopyZen', description = 'Marketing automation platform' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --brand-primary: #06164a;
+    --brand-secondary: #6220ff;
+    --brand-accent: #a1c8f7;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: system-ui, -apple-system, sans-serif;
+    line-height: 1.5;
+    color-scheme: light;
+  }
+
+  body {
+    background: #ffffff;
+    color: #333;
+  }
+
+  main {
+    min-height: 100vh;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    margin-bottom: 1rem;
+  }
+
+  a {
+    color: var(--brand-primary);
+    text-decoration: none;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+</style>

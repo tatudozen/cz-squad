@@ -81,3 +81,54 @@ export type GeneratePresentationRequest = Pick<
   Presentation,
   'briefing_id' | 'brand_profile_id' | 'client_id'
 >;
+
+// Etapa T: Transformação (Qualification Quiz)
+export interface QuizAnswer {
+  text: string;
+  points: number; // 0-25 typically
+}
+
+export interface QuizQuestion {
+  id: string;
+  question: string;
+  questionType: 'multipleChoice' | 'yesNo';
+  answers: QuizAnswer[];
+  theme: string; // Topic category (e.g., 'budget', 'timeline', 'challenge')
+}
+
+export interface QualificationQuiz {
+  id: string;
+  briefing_id: string;
+  presentation_id: string;
+  client_id: string;
+  questions: QuizQuestion[];
+  created_at: string;
+}
+
+export interface QualificationResponse {
+  leadId: string;
+  responses: Record<string, number>; // questionId -> answerIndex
+}
+
+export type QualificationTier = 'hot' | 'warm' | 'cold';
+
+export interface QualificationResult {
+  id: string;
+  lead_id: string;
+  presentation_id: string;
+  briefing_id: string;
+  qualification_score: number; // 0-100
+  qualification_tier: QualificationTier;
+  survey_responses: Record<string, string>; // questionId -> answerText
+  next_step_cta: string;
+  thank_you_message: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type GenerateQualificationRequest = {
+  lead_id: string;
+  presentation_id: string;
+  briefing_id: string;
+  responses: Record<string, number>;
+};

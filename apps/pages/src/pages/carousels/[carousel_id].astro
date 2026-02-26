@@ -9,6 +9,13 @@
 import Carousel from '../../components/Carousel.astro';
 import Layout from '../../layouts/Layout.astro';
 
+// Required for static generation of dynamic routes
+export async function getStaticPaths() {
+  return [
+    { params: { carousel_id: 'carousel-123' } },
+  ];
+}
+
 // Mock carousel ID from URL
 const { carousel_id } = Astro.params;
 
