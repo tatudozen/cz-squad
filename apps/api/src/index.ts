@@ -11,6 +11,7 @@ import designBriefRouter from './routes/design-brief.ts';
 import funwheelRouter from './routes/funwheel.ts';
 import salesPageRouter from './routes/sales-page.ts';
 import projectsRouter from './routes/projects.ts';
+import deliverablesRouter from './routes/deliverables.ts';
 import { errorHandler } from './middleware/error-handler.ts';
 
 const app = express();
@@ -74,6 +75,9 @@ app.use('/sales-page', salesPageRouter);
 
 // Project pipeline routes (Story 4.3)
 app.use('/projects', projectsRouter);
+
+// Deliverable approval routes (Story 4.4)
+app.use('/deliverables', deliverablesRouter);
 
 app.post('/content/generate-package', (req: Request, res: Response) => {
   res.status(501).json({ error: 'Not implemented' });
