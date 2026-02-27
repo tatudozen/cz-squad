@@ -1,0 +1,236 @@
+{
+  "name": "CopyZen Master Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "copyzen-pipeline-trigger",
+        "responseMode": "onReceived",
+        "responseCode": 202,
+        "responseData": "={\"status\": \"accepted\", \"message\": \"Pipeline triggered\"}"
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Extract project data from webhook\nconst body = $input.first().json.body;\nreturn [{\n  json: {\n    project_id: body.project_id,\n    briefing_id: body.briefing_id,\n    brand_profile_id: body.brand_profile_id,\n    client_id: body.client_id,\n    operator_phone: body.operator_phone || null,\n    pipelines: body.pipelines || { content: true, funwheel: true, sales_page: true },\n    api_base_url: body.api_base_url || 'http://localhost:3000'\n  }\n}];"
+      },
+      "id": "parse-input",
+      "name": "Parse Input",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.api_base_url }}/content/generate-package",
+        "method": "POST",
+        "body": {
+          "briefing_id": "={{ $json.briefing_id }}",
+          "brand_profile_id": "={{ $json.brand_profile_id }}",
+          "client_id": "={{ $json.client_id }}"
+        },
+        "options": {
+          "timeout": 300000,
+          "retry": {
+            "maxRetries": 2,
+            "retryInterval": 5000
+          }
+        }
+      },
+      "id": "content-pipeline",
+      "name": "Content Pipeline",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [700, 150],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.api_base_url }}/funwheel/generate",
+        "method": "POST",
+        "body": {
+          "briefing_id": "={{ $json.briefing_id }}",
+          "brand_profile_id": "={{ $json.brand_profile_id }}",
+          "client_id": "={{ $json.client_id }}"
+        },
+        "options": {
+          "timeout": 300000,
+          "retry": {
+            "maxRetries": 2,
+            "retryInterval": 5000
+          }
+        }
+      },
+      "id": "funwheel-pipeline",
+      "name": "FunWheel Pipeline",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [700, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.api_base_url }}/sales-page/generate",
+        "method": "POST",
+        "body": {
+          "briefing_id": "={{ $json.briefing_id }}",
+          "brand_profile_id": "={{ $json.brand_profile_id }}",
+          "client_id": "={{ $json.client_id }}"
+        },
+        "options": {
+          "timeout": 300000,
+          "retry": {
+            "maxRetries": 2,
+            "retryInterval": 5000
+          }
+        }
+      },
+      "id": "salespage-pipeline",
+      "name": "Sales Page Pipeline",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [700, 450],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "functionCode": "// Aggregate results from all 3 pipelines\nconst contentResult = $node['Content Pipeline'].json;\nconst funwheelResult = $node['FunWheel Pipeline'].json;\nconst salesPageResult = $node['Sales Page Pipeline'].json;\nconst input = $node['Parse Input'].json;\n\nconst contentOk = !contentResult.error;\nconst funwheelOk = !funwheelResult.error;\nconst salesPageOk = !salesPageResult.error;\nconst allOk = contentOk && funwheelOk && salesPageOk;\n\nreturn [{\n  json: {\n    project_id: input.project_id,\n    status: allOk ? 'ready_for_review' : 'partial',\n    content: { success: contentOk, data: contentResult },\n    funwheel: { success: funwheelOk, data: funwheelResult },\n    sales_page: { success: salesPageOk, data: salesPageResult },\n    api_base_url: input.api_base_url,\n    operator_phone: input.operator_phone\n  }\n}];"
+      },
+      "id": "aggregate-results",
+      "name": "Aggregate Results",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [950, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.api_base_url }}/projects/{{ $json.project_id }}/status",
+        "method": "PATCH",
+        "body": {
+          "status": "={{ $json.status }}",
+          "content_status": "={{ $json.content.success ? 'ready_for_review' : 'failed' }}",
+          "funwheel_status": "={{ $json.funwheel.success ? 'ready_for_review' : 'failed' }}",
+          "sales_page_status": "={{ $json.sales_page.success ? 'ready_for_review' : 'failed' }}"
+        }
+      },
+      "id": "update-status",
+      "name": "Update Project Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1150, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.status === 'ready_for_review' && $json.operator_phone }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "check-notification",
+      "name": "Should Notify?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1350, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Format WhatsApp notification\nconst data = $input.first().json;\nreturn [{\n  json: {\n    phone: data.operator_phone,\n    message: `✅ Projeto ${data.project_id.substring(0, 8)} pronto para revisão!\\n\\nTodas as peças foram geradas com sucesso.\\n\\nAcesse: https://app.copyzen.com.br/projects/${data.project_id}`\n  }\n}];"
+      },
+      "id": "format-notification",
+      "name": "Format Notification",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1550, 200]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.EVOLUTION_API_URL }}/message/sendText/{{ $env.EVOLUTION_INSTANCE_NAME }}",
+        "method": "POST",
+        "headers": {
+          "apikey": "={{ $env.EVOLUTION_API_KEY }}"
+        },
+        "body": {
+          "number": "={{ $json.phone }}",
+          "text": "={{ $json.message }}"
+        }
+      },
+      "id": "send-whatsapp",
+      "name": "Send WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1750, 200],
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [{ "node": "Parse Input", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse Input": {
+      "main": [
+        [
+          { "node": "Content Pipeline", "type": "main", "index": 0 },
+          { "node": "FunWheel Pipeline", "type": "main", "index": 0 },
+          { "node": "Sales Page Pipeline", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Content Pipeline": {
+      "main": [
+        [{ "node": "Aggregate Results", "type": "main", "index": 0 }]
+      ]
+    },
+    "FunWheel Pipeline": {
+      "main": [
+        [{ "node": "Aggregate Results", "type": "main", "index": 0 }]
+      ]
+    },
+    "Sales Page Pipeline": {
+      "main": [
+        [{ "node": "Aggregate Results", "type": "main", "index": 0 }]
+      ]
+    },
+    "Aggregate Results": {
+      "main": [
+        [{ "node": "Update Project Status", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update Project Status": {
+      "main": [
+        [{ "node": "Should Notify?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Should Notify?": {
+      "main": [
+        [{ "node": "Format Notification", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Format Notification": {
+      "main": [
+        [{ "node": "Send WhatsApp", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo"
+  },
+  "meta": {
+    "description": "CopyZen Master Pipeline - Orchestrates Content, FunWheel, and Sales Page generation in parallel from a single briefing. Sends WhatsApp notification on completion.",
+    "version": "1.0.0",
+    "story": "4.3"
+  }
+}
