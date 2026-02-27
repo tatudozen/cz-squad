@@ -9,6 +9,7 @@ import carouselRouter from './routes/carousel.ts';
 import staticPostRouter from './routes/static-post.ts';
 import designBriefRouter from './routes/design-brief.ts';
 import funwheelRouter from './routes/funwheel.ts';
+import salesPageRouter from './routes/sales-page.ts';
 import { errorHandler } from './middleware/error-handler.ts';
 
 const app = express();
@@ -67,6 +68,9 @@ app.use('/design-brief', designBriefRouter);
 // FunWheel routes (Story 3.2+)
 app.use('/funwheel', funwheelRouter);
 
+// Sales page routes (Story 4.1+)
+app.use('/sales-page', salesPageRouter);
+
 app.post('/content/generate-package', (req: Request, res: Response) => {
   res.status(501).json({ error: 'Not implemented' });
 });
@@ -76,10 +80,6 @@ app.post('/funwheel/generate', (req: Request, res: Response) => {
 });
 
 app.post('/leads', (req: Request, res: Response) => {
-  res.status(501).json({ error: 'Not implemented' });
-});
-
-app.post('/sales-page/generate', (req: Request, res: Response) => {
   res.status(501).json({ error: 'Not implemented' });
 });
 
