@@ -1,0 +1,206 @@
+---
+/**
+ * Dynamic Sales Page Route
+ * Renders pre-built sales pages based on client slug
+ * Route: /vendas/:clientSlug
+ */
+
+export async function getStaticPaths() {
+  // In production, would fetch list of client slugs from API
+  // For MVP, return empty array (no pre-rendering)
+  // All requests will be handled dynamically
+  return [
+    // { params: { clientSlug: 'exemplo-1' } },
+    // { params: { clientSlug: 'exemplo-2' } },
+  ];
+}
+
+interface Props {
+  clientSlug: string;
+}
+
+const { clientSlug } = Astro.params as Props;
+
+// In production, would fetch the built HTML from the API
+// For MVP, render a placeholder
+const getSalesPageHTML = (slug: string): string => {
+  // This would normally call: GET /api/sales-page/slug/{slug}
+  // which would return the pre-built HTML from the builder service
+
+  return `
+    <div class="sales-page-container">
+      <section class="sales-page-section hero">
+        <h1>Bem-vindo, ${slug}!</h1>
+        <p>Sua página de vendas será exibida aqui.</p>
+        <button class="cta-button">Começar Agora</button>
+      </section>
+
+      <section class="sales-page-section features">
+        <h2>Recursos Principais</h2>
+        <ul>
+          <li>✓ Página completamente personalizada</li>
+          <li>✓ Otimizada para conversão</li>
+          <li>✓ Mobile-first design</li>
+          <li>✓ Lighthouse score > 90</li>
+        </ul>
+      </section>
+
+      <section class="sales-page-section footer">
+        <p>© 2026 CopyZen - Gerado automaticamente</p>
+      </section>
+    </div>
+  `;
+};
+
+const htmlContent = getSalesPageHTML(clientSlug);
+---
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Página de Vendas - {clientSlug}</title>
+    <style>
+      :root {
+        --brand-primary: #0616CA;
+        --brand-secondary: #FF6B6B;
+        --brand-accent: #A1C8F7;
+        --brand-neutral: #F5F5F5;
+        --font-heading: 'Poppins', sans-serif;
+        --font-body: 'Inter', sans-serif;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: var(--font-body);
+        line-height: 1.6;
+        color: #333;
+      }
+
+      .sales-page-container {
+        width: 100%;
+        overflow-x: hidden;
+      }
+
+      .sales-page-section {
+        width: 100%;
+        padding: 4rem 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .sales-page-section.hero {
+        background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-accent) 100%);
+        color: white;
+        text-align: center;
+        padding: 6rem 2rem;
+        min-height: 600px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .sales-page-section.hero h1 {
+        font-family: var(--font-heading);
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+      }
+
+      .sales-page-section.hero p {
+        font-size: 1.25rem;
+        margin-bottom: 2rem;
+        opacity: 0.95;
+      }
+
+      .cta-button {
+        background-color: var(--brand-accent);
+        color: white;
+        padding: 1.25rem 3rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .cta-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .sales-page-section.features {
+        background-color: #f9f9f9;
+        padding: 4rem 2rem;
+      }
+
+      .sales-page-section.features h2 {
+        font-family: var(--font-heading);
+        font-size: 2.5rem;
+        color: var(--brand-primary);
+        margin-bottom: 2rem;
+      }
+
+      .sales-page-section.features ul {
+        list-style: none;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .sales-page-section.features li {
+        font-size: 1.1rem;
+        padding: 1rem;
+        background: white;
+        border-left: 4px solid var(--brand-primary);
+        border-radius: 4px;
+      }
+
+      .sales-page-section.footer {
+        background-color: #2c2c2c;
+        color: white;
+        text-align: center;
+        padding: 2rem;
+      }
+
+      @media (max-width: 768px) {
+        .sales-page-section {
+          padding: 2rem 1rem;
+        }
+
+        .sales-page-section.hero {
+          min-height: 400px;
+          padding: 3rem 1.5rem;
+        }
+
+        .sales-page-section.hero h1 {
+          font-size: 2rem;
+        }
+
+        .sales-page-section.hero p {
+          font-size: 1rem;
+        }
+
+        .cta-button {
+          width: 100%;
+          padding: 1rem;
+          font-size: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sales-page-wrapper">
+      <!-- Dynamic content will be injected here -->
+      <div set:html={htmlContent} />
+    </div>
+  </body>
+</html>
