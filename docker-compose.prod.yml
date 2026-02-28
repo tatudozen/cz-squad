@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   # CopyZen API Service
-  api:
+  copyzen-api:
     image: ${DOCKER_REGISTRY}/copyzen-api:latest
     container_name: copyzen-api
     environment:
@@ -34,11 +34,8 @@ services:
       # Operator
       OPERATOR_API_KEY: ${OPERATOR_API_KEY}
 
-    ports:
-      - "3000:3000"
-
     networks:
-      - copyzen-network
+      - AZ_Net
 
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
@@ -56,13 +53,33 @@ services:
     # Swarm mode deployment
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: ${API_REPLICAS:-2}
       placement:
         constraints:
           - node.role == worker
       labels:
-        app: "copyzen"
-        service: "api"
+        # Application Labels
+        - app=copyzen
+        - service=api
+
+        # Traefik Configuration
+        - traefik.enable=true
+        - traefik.docker.network=AZ_Net
+
+        # Router Configuration
+        - traefik.http.routers.copyzen-api.rule=Host(`${API_DOMAIN}`)
+        - traefik.http.routers.copyzen-api.entrypoints=websecure
+        - traefik.http.routers.copyzen-api.tls=true
+        - traefik.http.routers.copyzen-api.tls.certresolver=letsencryptresolver
+
+        # Service Configuration
+        - traefik.http.services.copyzen-api.loadbalancer.server.port=3000
+        - traefik.http.services.copyzen-api.loadbalancer.passhostheader=true
+
+        # Middleware (optional)
+        - traefik.http.routers.copyzen-api.middlewares=copyzen-api-stripprefix
+        - traefik.http.middlewares.copyzen-api-stripprefix.stripprefix.prefixes=/api
+
       update_config:
         parallelism: 1
         delay: 10s
@@ -79,7 +96,7 @@ services:
           memory: 256M
 
   # PostgreSQL Database Service
-  postgres:
+  copyzen-postgres:
     image: postgres:15-alpine
     container_name: copyzen-postgres
     environment:
@@ -90,13 +107,10 @@ services:
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ${INIT_DB_PATH:-./scripts/init-db.sql}:/docker-entrypoint-initdb.d/01-init.sql:ro
 
     networks:
-      - copyzen-network
-
-    ports:
-      - "5432:5432"
+      - AZ_Net
 
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-copyzen}']
@@ -117,8 +131,8 @@ services:
         constraints:
           - node.role == manager
       labels:
-        app: "copyzen"
-        service: "postgres"
+        - app=copyzen
+        - service=postgres
       resources:
         limits:
           cpus: '2'
@@ -133,10 +147,9 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /var/lib/copyzen/postgres_data
+      device: ${POSTGRES_DATA_PATH:-/srv/copyzen/postgres_data}
 
 networks:
-  copyzen-network:
-    driver: overlay
-    driver_opts:
-      com.docker.network.driver.overlay.vxlanid: "4096"
+  AZ_Net:
+    external: true
+    name: AZ_Net
