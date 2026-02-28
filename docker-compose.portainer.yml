@@ -1,0 +1,171 @@
+version: '3.8'
+
+# ============================================================================
+# CopyZen Stack - Portainer Edition
+# ============================================================================
+# Copie este YAML completo no editor do Portainer:
+# 1. Portainer → Stacks → Add Stack
+# 2. Cole este conteúdo no editor
+# 3. Selecione o endpoint (seu Docker Swarm)
+# 4. Clique "Deploy the stack"
+#
+# Variáveis de ambiente serão solicitadas após o deploy
+# ============================================================================
+
+services:
+  # ========================================================================
+  # CopyZen API - Express.js Backend
+  # ========================================================================
+  copyzen-api:
+    image: ${DOCKER_REGISTRY}/copyzen-api:latest
+    environment:
+      # Runtime
+      NODE_ENV: production
+      API_PORT: 3000
+      API_HOST: 0.0.0.0
+      LOG_LEVEL: info
+
+      # Database
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+
+      # LLM
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      ANTHROPIC_MODEL: claude-opus-4
+
+      # Integrações
+      N8N_API_URL: ${N8N_API_URL}
+      N8N_API_KEY: ${N8N_API_KEY}
+      EVOLUTION_API_URL: ${EVOLUTION_API_URL}
+      EVOLUTION_INSTANCE_NAME: ${EVOLUTION_INSTANCE_NAME}
+      PUBLIC_API_URL: https://${API_DOMAIN}
+      OPERATOR_API_KEY: ${OPERATOR_API_KEY}
+
+    networks:
+      - AZ_Net
+
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    restart_policy:
+      condition: on-failure
+      delay: 5s
+      max_attempts: 3
+      window: 120s
+
+    deploy:
+      mode: replicated
+      replicas: ${API_REPLICAS:-2}
+      placement:
+        constraints:
+          - node.role == worker
+
+      labels:
+        # Traefik Configuration
+        - "traefik.enable=true"
+        - "traefik.docker.network=AZ_Net"
+        - "traefik.http.routers.copyzen-api.rule=Host(`${API_DOMAIN}`)"
+        - "traefik.http.routers.copyzen-api.entrypoints=websecure"
+        - "traefik.http.routers.copyzen-api.tls=true"
+        - "traefik.http.routers.copyzen-api.tls.certresolver=letsencryptresolver"
+        - "traefik.http.services.copyzen-api.loadbalancer.server.port=3000"
+
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  # ========================================================================
+  # PostgreSQL Database - Persistent Storage
+  # ========================================================================
+  copyzen-postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-copyzen}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-copyzen}
+      POSTGRES_INITDB_ARGS: "-c shared_buffers=256MB -c max_connections=200"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    networks:
+      - AZ_Net
+
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-copyzen}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    restart_policy:
+      condition: on-failure
+      delay: 5s
+      max_attempts: 5
+      window: 120s
+
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+        reservations:
+          cpus: '1'
+          memory: 512M
+
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${POSTGRES_DATA_PATH:-/srv/copyzen/postgres_data}
+
+networks:
+  AZ_Net:
+    external: true
+    name: AZ_Net
+
+# ============================================================================
+# VARIÁVEIS DE AMBIENTE OBRIGATÓRIAS
+# ============================================================================
+#
+# Antes de fazer deploy, prepare estas variáveis:
+#
+# DOCKER_REGISTRY = seu-docker-hub/seu-username (ex: docker.io/seu-user)
+# ANTHROPIC_API_KEY = sk-ant-... (sua chave Claude)
+# POSTGRES_PASSWORD = senha-forte-aqui
+# API_DOMAIN = copyzen.alquimiazen.com.br
+#
+# SUPABASE_URL = https://projeto.supabase.co (opcional)
+# SUPABASE_ANON_KEY = eyJhbGci... (opcional)
+# SUPABASE_SERVICE_ROLE_KEY = eyJhbGci... (opcional)
+#
+# N8N_API_URL = http://n8n:5678/api (opcional)
+# N8N_API_KEY = seu-n8n-key (opcional)
+#
+# EVOLUTION_API_URL = http://evolution:8080/api (opcional)
+# EVOLUTION_INSTANCE_NAME = copyzen-prod (opcional)
+#
+# OPERATOR_API_KEY = seu-operator-key (opcional)
+#
+# ============================================================================
