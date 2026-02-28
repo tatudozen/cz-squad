@@ -43,7 +43,7 @@ Nosso método único combina ${ctx.benefits}. Resultado? ${ctx.result}.`,
  * Generate copy content
  */
 function generateCopyContent(
-  copyType: CopyType,
+  copy_type: CopyType,
   businessName: string,
   targetAudience: string,
   differentiators: string
@@ -74,7 +74,7 @@ function generateCopyContent(
     cta: 'Comece sua transformação hoje 🚀',
   };
 
-  const template = COPY_TEMPLATES[copyType];
+  const template = COPY_TEMPLATES[copy_type];
   return template(context);
 }
 
@@ -82,26 +82,26 @@ function generateCopyContent(
  * Validate copy against brand guidelines
  */
 function validateCopy(
-  generatedCopy: string,
+  generated_copy: string,
   brandProfile: BrandProfile,
-  copyType: CopyType
+  copy_type: CopyType
 ): CopyValidation {
-  const copyLower = generatedCopy.toLowerCase();
-  const toneWords = brandProfile.voice_guidelines.tone.toLowerCase().split(/\s+/);
+  const copyLower = generated_copy.toLowerCase();
+  const toneWords = brandProfile.voice_guidelines?.tone.toLowerCase().split(/\s+/);
 
   // Check keyword inclusion
-  const includedKeywords = brandProfile.voice_guidelines.keywords_to_use.filter(
+  const includedKeywords = brandProfile.voice_guidelines?.keywords_to_use.filter(
     (kw) => copyLower.includes(kw.toLowerCase())
   );
 
   // Check forbidden keywords
-  const forbiddenWordsPresent = brandProfile.voice_guidelines.keywords_to_avoid.some(
+  const forbiddenWordsPresent = brandProfile.voice_guidelines?.keywords_to_avoid.some(
     (kw) => copyLower.includes(kw.toLowerCase())
   );
 
   // Check length constraints
-  const constraints = COPY_CONSTRAINTS[copyType];
-  const isWithinLength = generatedCopy.length >= constraints.min && generatedCopy.length <= constraints.max;
+  const constraints = COPY_CONSTRAINTS[copy_type];
+  const isWithinLength = generated_copy.length >= constraints.min && generated_copy.length <= constraints.max;
 
   // Check if tone is respected (simple heuristic: no negative words if tone is positive)
   const negativeToneWords = ['ruim', 'pior', 'péssimo', 'horrível'];
@@ -132,23 +132,23 @@ export async function generateCopy(
   businessName: string,
   targetAudience: string,
   differentiators: string,
-  copyType: CopyType,
+  copy_type: CopyType,
   brandProfile: BrandProfile
 ): Promise<GeneratedCopy> {
   const startTime = Date.now();
 
   try {
     // Generate copy content
-    const generatedCopy = generateCopyContent(copyType, businessName, targetAudience, differentiators);
+    const generated_copy = generateCopyContent(copy_type, businessName, targetAudience, differentiators);
 
     // Validate against brand guidelines
-    const validation = validateCopy(generatedCopy, brandProfile, copyType);
+    const validation = validateCopy(generated_copy, brandProfile, copy_type);
 
     const endTime = Date.now();
     const timeMs = endTime - startTime;
 
     // Estimate tokens and cost
-    const estimatedTokens = Math.ceil(generatedCopy.length / 4) + 200;
+    const estimatedTokens = Math.ceil(generated_copy.length / 4) + 200;
     const inputTokens = estimatedTokens * 0.7;
     const outputTokens = estimatedTokens * 0.3;
     const inputCost = (inputTokens / 1000000) * 3;
@@ -157,9 +157,9 @@ export async function generateCopy(
 
     return {
       id: crypto.randomUUID(),
-      generated_copy: generatedCopy,
-      copy_type: copyType,
-      character_count: generatedCopy.length,
+      generated_copy: generated_copy,
+      copy_type: copy_type,
+      character_count: generated_copy.length,
       validation,
       generation_metrics: {
         tokens_used: estimatedTokens,

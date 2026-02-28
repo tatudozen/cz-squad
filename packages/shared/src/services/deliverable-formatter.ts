@@ -100,9 +100,9 @@ export function formatInstagramCarousel(
   return {
     slides,
     color_palette: {
-      primary: brandProfile.color_palette.primary,
-      secondary: brandProfile.color_palette.secondary,
-      accent: brandProfile.color_palette.accent,
+      primary: brandProfile.color_palette?.primary,
+      secondary: brandProfile.color_palette?.secondary,
+      accent: brandProfile.color_palette?.accent,
     },
     font_recommendations: brandProfile.font_recommendations || {
       heading: 'Montserrat',
@@ -180,10 +180,10 @@ export function formatLandingPageDraft(
       },
     },
     color_scheme: {
-      primary: brandProfile.color_palette.primary,
-      secondary: brandProfile.color_palette.secondary,
-      accent: brandProfile.color_palette.accent,
-      neutral: brandProfile.color_palette.neutral,
+      primary: brandProfile.color_palette?.primary,
+      secondary: brandProfile.color_palette?.secondary,
+      accent: brandProfile.color_palette?.accent,
+      neutral: brandProfile.color_palette?.neutral,
     },
   };
 }

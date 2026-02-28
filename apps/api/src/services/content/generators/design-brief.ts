@@ -83,13 +83,13 @@ export async function generateCarouselDesignBrief(
   // Build LLM prompt
   const prompt = buildCarouselBriefPrompt(carousel, brandProfile);
 
-  let colorPalette: ColorSpec[] = [];
+  let color_palette: ColorSpec[] = [];
   let typography: TypographyGuide = { heading: '', body: '' };
-  let spacingGuidelines = '';
-  let layoutGuidelines = '';
-  let imageryStyle = '';
-  let slidesBriefs: CarouselSlideBrief[] = [];
-  let overallAesthetic = '';
+  let spacing_guidelines = '';
+  let layout_guidelines = '';
+  let imagery_style = '';
+  let slides_briefs: CarouselSlideBrief[] = [];
+  let overall_aesthetic = '';
   let attempts = 0;
   const maxRetries = 2;
 
@@ -119,23 +119,23 @@ export async function generateCarouselDesignBrief(
         overall_aesthetic: string;
       };
 
-      colorPalette = parsed.color_palette || [];
+      color_palette = parsed.color_palette || [];
       typography = parsed.typography || { heading: '', body: '' };
-      spacingGuidelines = parsed.spacing_guidelines || '';
-      layoutGuidelines = parsed.layout_guidelines || '';
-      imageryStyle = parsed.imagery_style || '';
-      slidesBriefs = parsed.slides_briefs || [];
-      overallAesthetic = parsed.overall_aesthetic || '';
+      spacing_guidelines = parsed.spacing_guidelines || '';
+      layout_guidelines = parsed.layout_guidelines || '';
+      imagery_style = parsed.imagery_style || '';
+      slides_briefs = parsed.slides_briefs || [];
+      overall_aesthetic = parsed.overall_aesthetic || '';
 
       // Validate structure
-      if (!colorPalette.length || !typography.heading) {
+      if (!color_palette.length || !typography.heading) {
         throw new Error('Invalid design brief structure from LLM');
       }
 
       logger.info('Carousel design brief generated successfully', {
         carousel_id: carousel.id,
-        colors: colorPalette.length,
-        slides: slidesBriefs.length,
+        colors: color_palette.length,
+        slides: slides_briefs.length,
       });
 
       break;
@@ -158,13 +158,13 @@ export async function generateCarouselDesignBrief(
     brand_profile_id: brandProfile.id,
     client_id: clientId,
     content_type: 'carousel',
-    color_palette: colorPalette,
+    color_palette: color_palette,
     typography,
-    spacing_guidelines: spacingGuidelines,
-    layout_guidelines: layoutGuidelines,
-    imagery_style: imageryStyle,
-    slides_briefs: slidesBriefs,
-    overall_aesthetic: overallAesthetic,
+    spacing_guidelines: spacing_guidelines,
+    layout_guidelines: layout_guidelines,
+    imagery_style: imagery_style,
+    slides_briefs: slides_briefs,
+    overall_aesthetic: overall_aesthetic,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
@@ -193,12 +193,12 @@ export async function generateStaticPostDesignBrief(
   // Build LLM prompt
   const prompt = buildStaticPostBriefPrompt(post, brandProfile);
 
-  let colorPalette: ColorSpec[] = [];
+  let color_palette: ColorSpec[] = [];
   let typography: TypographyGuide = { heading: '', body: '' };
   let imageComposition = '';
   let focalPoint = '';
   let textOverlayGuidelines = '';
-  let imageryStyle = '';
+  let imagery_style = '';
   let responsiveNotes = '';
   let attempts = 0;
   const maxRetries = 2;
@@ -224,23 +224,23 @@ export async function generateStaticPostDesignBrief(
         responsive_notes: string;
       };
 
-      colorPalette = parsed.color_palette || [];
+      color_palette = parsed.color_palette || [];
       typography = parsed.typography || { heading: '', body: '' };
       imageComposition = parsed.image_composition || '';
       focalPoint = parsed.focal_point || '';
       textOverlayGuidelines = parsed.text_overlay_guidelines || '';
-      imageryStyle = parsed.imagery_style || '';
+      imagery_style = parsed.imagery_style || '';
       responsiveNotes = parsed.responsive_notes || '';
 
       // Validate structure
-      if (!colorPalette.length || !typography.heading) {
+      if (!color_palette.length || !typography.heading) {
         throw new Error('Invalid design brief structure from LLM');
       }
 
       logger.info('Static post design brief generated successfully', {
         post_id: post.id,
         platform: post.platform,
-        colors: colorPalette.length,
+        colors: color_palette.length,
       });
 
       break;
@@ -264,12 +264,12 @@ export async function generateStaticPostDesignBrief(
     client_id: clientId,
     content_type: 'static-post',
     platform: post.platform,
-    color_palette: colorPalette,
+    color_palette: color_palette,
     typography,
     image_composition: imageComposition,
     focal_point: focalPoint,
     text_overlay_guidelines: textOverlayGuidelines,
-    imagery_style: imageryStyle,
+    imagery_style: imagery_style,
     responsive_notes: responsiveNotes,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -294,9 +294,9 @@ function buildCarouselBriefPrompt(carousel: Carousel, brandProfile: BrandProfile
   return `Generate a comprehensive visual design brief for an Instagram carousel with ${carousel.slides.length} slides.
 
 BRAND PROFILE:
-- Voice: ${brandProfile.voiceGuidelines}
-- Color Palette: ${JSON.stringify(brandProfile.colorPalette)}
-- Font Recommendations: ${JSON.stringify(brandProfile.fontRecommendations)}
+- Voice: ${brandProfile.voice_guidelines}
+- Color Palette: ${JSON.stringify(brandProfile.color_palette)}
+- Font Recommendations: ${JSON.stringify(brandProfile.font_recommendations)}
 
 CAROUSEL CONTENT:
 ${slideDescriptions}
@@ -359,9 +359,9 @@ function buildStaticPostBriefPrompt(post: StaticPost, brandProfile: BrandProfile
   return `Generate a comprehensive visual design brief for a ${post.platform} static post.
 
 BRAND PROFILE:
-- Voice: ${brandProfile.voiceGuidelines}
-- Color Palette: ${JSON.stringify(brandProfile.colorPalette)}
-- Font Recommendations: ${JSON.stringify(brandProfile.fontRecommendations)}
+- Voice: ${brandProfile.voice_guidelines}
+- Color Palette: ${JSON.stringify(brandProfile.color_palette)}
+- Font Recommendations: ${JSON.stringify(brandProfile.font_recommendations)}
 
 POST CONTENT:
 - Platform: ${post.platform}

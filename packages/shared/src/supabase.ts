@@ -69,23 +69,34 @@ export interface Client {
   description?: string;
   created_at: string;
   updated_at: string;
+  status?: string;
 }
 
 export interface Briefing {
   id: string;
   client_id: string;
-  title: string;
+  business_name?: string;
+  title?: string;
   segment?: string;
   target_audience?: string;
   main_problem?: string;
   desired_transformation?: string;
-  tone_voice?: string;
+  voice_tone?: string;
+  tone_voice?: string; // backward compat
   unique_advantage?: string;
+  differentiators?: string;
+  objectives?: string[];
+  existing_colors?: string[];
+  competitor_references?: string[];
+  logo_url?: string;
   call_to_action?: string;
   visual_references?: string;
   status: string;
   created_at: string;
   updated_at: string;
+  approved_at?: string;
+  approved_by?: string;
+  monthly_budget?: number;
 }
 
 export interface BrandProfile {
@@ -93,10 +104,20 @@ export interface BrandProfile {
   client_id: string;
   briefing_id?: string;
   colors?: any;
+  color_palette?: {
+    primary: string;
+    secondary: string;
+    accent: string;
+    neutral: string;
+  };
   fonts?: any;
-  voice_guidelines?: string;
+  font_recommendations?: {
+    heading: string;
+    body: string;
+  };
+  voice_guidelines?: any;
   visual_style?: string;
-  status: string;
+  status?: string;
   created_at: string;
   updated_at: string;
 }

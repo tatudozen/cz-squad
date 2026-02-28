@@ -9,14 +9,14 @@ const hexColorSchema = z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Invalid hex color 
 /**
  * Color palette schema
  */
-const colorPaletteSchema = z.object({
+const color_paletteSchema = z.object({
   primary: hexColorSchema,
   secondary: hexColorSchema,
   accent: hexColorSchema,
   neutral: hexColorSchema,
 });
 
-export type ColorPalette = z.infer<typeof colorPaletteSchema>;
+export type ColorPalette = z.infer<typeof color_paletteSchema>;
 
 /**
  * Voice guidelines schema
@@ -36,7 +36,7 @@ export type VoiceGuidelines = z.infer<typeof voiceGuidelinesSchema>;
 export const CreateBrandProfileRequestSchema = z.object({
   client_id: z.string().uuid('Invalid client ID format'),
   briefing_id: z.string().uuid('Invalid briefing ID format'),
-  color_palette: colorPaletteSchema,
+  color_palette: color_paletteSchema,
   voice_guidelines: voiceGuidelinesSchema,
   visual_style: z.string().min(1, 'Visual style is required').max(255).optional(),
   font_recommendations: z
@@ -54,7 +54,7 @@ export type CreateBrandProfileRequest = z.infer<typeof CreateBrandProfileRequest
  * All fields optional for partial updates
  */
 export const UpdateBrandProfileRequestSchema = z.object({
-  color_palette: colorPaletteSchema.optional(),
+  color_palette: color_paletteSchema.optional(),
   voice_guidelines: voiceGuidelinesSchema.optional(),
   visual_style: z.string().min(1).max(255).optional(),
   font_recommendations: z

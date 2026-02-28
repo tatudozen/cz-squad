@@ -194,7 +194,7 @@ STYLE: ${styleGuide}
 POST BRIEF: ${planItem.creative_brief}
 
 BRAND GUIDELINES:
-- Voice: ${brandProfile.voiceGuidelines}
+- Voice: ${brandProfile.voice_guidelines}
 - Tone: Professional and ${planItem.mode === 'inception' ? 'educational' : 'urgent'}
 
 CAROUSEL STRUCTURE:

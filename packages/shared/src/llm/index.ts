@@ -9,7 +9,7 @@ export interface LLMOptions {
 
 export interface LLMCompletionResponse {
   content: string;
-  tokensUsed: {
+  tokens_used: {
     input: number;
     output: number;
     total: number;

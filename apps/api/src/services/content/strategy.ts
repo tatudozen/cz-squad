@@ -217,16 +217,16 @@ function buildStrategyPrompt(
   return `You are a content strategist generating a cohesive content plan for a social media campaign.
 
 CLIENT BRIEF:
-- Business: ${briefing.businessName}
+- Business: ${briefing.business_name}
 - Segment: ${briefing.segment}
-- Target Audience: ${briefing.targetAudience}
+- Target Audience: ${briefing.target_audience}
 - Key Objectives: ${briefing.objectives.join(', ')}
-- Tone of Voice: ${briefing.voiceTone}
+- Tone of Voice: ${briefing.voice_tone}
 - Differentiators: ${briefing.differentiators}
 
 BRAND PROFILE:
-- Brand Voice: ${brandProfile.voiceGuidelines}
-- Color Palette: ${(brandProfile.colorPalette as unknown as Array<{ name?: string }>).map((c) => c.name).join(', ')}
+- Brand Voice: ${brandProfile.voice_guidelines}
+- Color Palette: ${(brandProfile.color_palette as unknown as Array<{ name?: string }>).map((c) => c.name).join(', ')}
 
 CONTENT PLAN REQUIREMENTS:
 You must generate exactly ${options.total_posts} posts with:

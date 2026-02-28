@@ -42,12 +42,12 @@ const mockPlanItem = {
 const mockBrandProfile = {
   id: 'profile-789',
   client_id: 'client-456',
-  colorPalette: [
+  color_palette: [
     { name: 'Primary', hex: '#06164A' },
     { name: 'Secondary', hex: '#6220FF' },
   ],
-  fontRecommendations: { heading: 'Poppins', body: 'Inter' },
-  voiceGuidelines: 'Professional, empathetic, trustworthy',
+  font_recommendations: { heading: 'Poppins', body: 'Inter' },
+  voice_guidelines: 'Professional, empathetic, trustworthy',
   created_at: '2026-02-20T00:00:00Z',
   updated_at: '2026-02-20T00:00:00Z',
 };

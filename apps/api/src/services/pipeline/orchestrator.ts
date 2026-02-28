@@ -14,9 +14,9 @@ import type { ProjectRecord, PipelineStatus } from '../../repositories/ProjectRe
 // =====================================================
 
 export interface PipelineConfig {
-  content: boolean;
-  funwheel: boolean;
-  sales_page: boolean;
+  content?: boolean;
+  funwheel?: boolean;
+  sales_page?: boolean;
 }
 
 export interface OrchestrateProjectInput {
@@ -277,8 +277,8 @@ export async function orchestrateProject(
 
   // Calculate metrics
   const totalTimeMs = Date.now() - startTime;
-  const tokensUsed = estimateTokensUsed(input.pipelines);
-  const estimatedCost = calculateEstimatedCost(tokensUsed);
+  const tokens_used = estimateTokensUsed(input.pipelines);
+  const estimatedCost = calculateEstimatedCost(tokens_used);
 
   // Send notification if all pipelines completed
   let notificationSent = false;
@@ -303,7 +303,7 @@ export async function orchestrateProject(
     pipelines: pipelineStatuses,
     metrics: {
       total_time_ms: totalTimeMs,
-      tokens_used: tokensUsed,
+      tokens_used: tokens_used,
       estimated_cost: estimatedCost,
     },
     notification_sent: notificationSent,
@@ -407,10 +407,10 @@ function estimateTokensUsed(pipelines: PipelineConfig): Record<string, number> {
   return tokens;
 }
 
-function calculateEstimatedCost(tokensUsed: Record<string, number>): number {
+function calculateEstimatedCost(tokens_used: Record<string, number>): number {
   // Approximate cost: $0.015 per 1K input tokens, $0.075 per 1K output tokens
   // Assuming ~60% input, ~40% output for estimation
-  const total = tokensUsed.total || 0;
+  const total = tokens_used.total || 0;
   const inputTokens = total * 0.6;
   const outputTokens = total * 0.4;
   const cost = (inputTokens / 1000) * 0.015 + (outputTokens / 1000) * 0.075;

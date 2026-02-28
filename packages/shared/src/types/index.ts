@@ -15,43 +15,43 @@ export interface Client {
 
 export interface Briefing {
   id: string;
-  clientId: string;
+  client_id: string;
   status: 'draft' | 'approved' | 'processing' | 'completed';
-  businessName: string;
+  business_name: string;
   segment: string;
-  targetAudience: string;
-  voiceTone: string;
+  target_audience: string;
+  voice_tone: string;
   objectives: string[];
   differentiators: string;
-  existingColors?: string[];
-  logoUrl?: string;
-  createdAt: Date;
-  approvedAt?: Date;
-  approvedBy?: string;
+  existing_colors?: string[];
+  logo_url?: string;
+  created_at: Date;
+  approved_at?: Date;
+  approved_by?: string;
 }
 
 export interface BrandProfile {
   id: string;
-  clientId: string;
-  briefingId: string;
-  colorPalette: {
+  client_id: string;
+  briefing_id: string;
+  color_palette: {
     primary: string;
     secondary: string;
     accent: string;
     neutral: string;
   };
-  voiceGuidelines: {
+  voice_guidelines: {
     tone: string;
-    keywordsToUse: string[];
-    keywordsToAvoid: string[];
-    examplePhrases: string[];
+    keywords_to_use: string[];
+    keywords_to_avoid: string[];
+    example_phrases: string[];
   };
-  visualStyle: string;
-  fontRecommendations: {
+  visual_style: string;
+  font_recommendations: {
     heading: string;
     body: string;
   };
-  createdAt: Date;
+  created_at: Date;
 }
 
 export interface Project {

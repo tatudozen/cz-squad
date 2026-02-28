@@ -174,7 +174,7 @@ export async function generateBrandProfile(briefing: Briefing): Promise<{
  */
 function generateDeterministicProfile(briefing: Briefing): GeneratedBrandProfile {
   // Map segments to color palettes
-  const colorPalettesBySegment: Record<string, ColorPalette> = {
+  const color_palettesBySegment: Record<string, ColorPalette> = {
     health: {
       primary: '#0066CC',
       secondary: '#00CC99',
@@ -202,21 +202,21 @@ function generateDeterministicProfile(briefing: Briefing): GeneratedBrandProfile
   };
 
   const segment = briefing.segment || 'default';
-  const colorPalette = colorPalettesBySegment[segment] || colorPalettesBySegment.default;
+  const color_palette = color_palettesBySegment[segment] || color_palettesBySegment.default;
 
   // Use existing colors if provided
   if (briefing.existing_colors && briefing.existing_colors.length > 0) {
-    colorPalette.primary = briefing.existing_colors[0];
+    color_palette.primary = briefing.existing_colors[0];
     if (briefing.existing_colors.length > 1) {
-      colorPalette.secondary = briefing.existing_colors[1];
+      color_palette.secondary = briefing.existing_colors[1];
     }
   }
 
-  const voiceGuidelines: VoiceGuidelines = {
+  const voice_guidelines: VoiceGuidelines = {
     tone: briefing.voice_tone || 'professional',
     keywords_to_use: [
       ...(briefing.differentiators ? [briefing.differentiators.split(' ')[0].toLowerCase()] : []),
-      ...briefing.objectives.slice(0, 2).map(obj => obj.toLowerCase()),
+      ...briefing.objectives.slice(0, 2).map((obj: string) => obj.toLowerCase()),
     ].slice(0, 3),
     keywords_to_avoid: ['generic', 'amateur', 'outdated'],
     example_phrases: [
@@ -227,8 +227,8 @@ function generateDeterministicProfile(briefing: Briefing): GeneratedBrandProfile
   };
 
   return {
-    color_palette: colorPalette,
-    voice_guidelines: voiceGuidelines,
+    color_palette: color_palette,
+    voice_guidelines: voice_guidelines,
     visual_style: `modern, clean, professional aesthetic befitting a ${segment} business`,
   };
 }

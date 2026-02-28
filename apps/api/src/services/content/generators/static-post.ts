@@ -216,7 +216,7 @@ PLATFORM: ${platform === 'instagram' ? 'Instagram - Visual, engaging, emoji-frie
 POST BRIEF: ${planItem.creative_brief}
 
 BRAND GUIDELINES:
-- Voice: ${brandProfile.voiceGuidelines}
+- Voice: ${brandProfile.voice_guidelines}
 - Tone: ${config.tone}
 
 POST REQUIREMENTS:
