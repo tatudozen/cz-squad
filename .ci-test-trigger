@@ -1,0 +1,11 @@
+CI/CD Test Trigger
+Timestamp: 2026-02-28T17:45:00Z
+Purpose: Test GitHub Actions workflow with CI/CD secrets
+
+This file triggers the Deploy workflow to:
+1. Build Docker image
+2. Push to Docker Hub
+3. SSH deploy to VPS
+4. Validate Portainer deployment
+
+Build timestamp: $(date)
