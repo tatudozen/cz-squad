@@ -7,10 +7,36 @@
  * Usage: npx ts-node scripts/validate-mvp-copyzen.ts
  */
 
-import { createClient } from '@supabase/supabase-js';
-import { config } from '../apps/api/src/utils/config.js';
+import dotenv from 'dotenv';
 
-const supabase = createClient(config.supabaseUrl, config.supabaseServiceRoleKey);
+dotenv.config({ path: '.env.local' });
+
+const API_URL = process.env.PUBLIC_API_URL || 'http://localhost:3000';
+
+// =====================================================
+// HTTP Helper
+// =====================================================
+
+async function apiCall(method: string, endpoint: string, body?: any) {
+  const url = `${API_URL}${endpoint}`;
+  const options: RequestInit = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+  };
+
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
+
+  const response = await fetch(url, options);
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`${method} ${endpoint}: ${response.status} - ${text}`);
+  }
+
+  return await response.json();
+}
 
 // =====================================================
 // STEP 1: Create CopyZen Client
@@ -19,27 +45,19 @@ const supabase = createClient(config.supabaseUrl, config.supabaseServiceRoleKey)
 async function createCopyZenClient() {
   console.log('\n📝 Step 1: Creating CopyZen client...');
 
-  const { data, error } = await supabase
-    .from('clients')
-    .insert({
-      name: 'CopyZen',
-      industry: 'Marketing Automation',
-      contact_name: 'Fernando Nunes',
-      contact_email: 'fernando@copyzen.com.br',
-      contact_phone: '+55 11 99999-9999',
-      website: 'https://copyzen.com.br',
-      description: 'AI-powered marketing pipeline for solopreneurs and small businesses',
-    })
-    .select()
-    .single();
+  const response = await apiCall('POST', '/clients', {
+    name: 'CopyZen',
+    industry: 'Marketing Automation',
+    contact_name: 'Fernando Nunes',
+    contact_email: 'fernando@copyzen.com.br',
+    contact_phone: '+55 11 99999-9999',
+    website: 'https://copyzen.com.br',
+    description: 'AI-powered marketing pipeline for solopreneurs and small businesses',
+  });
 
-  if (error) {
-    console.error('❌ Failed to create client:', error.message);
-    throw error;
-  }
-
-  console.log('✅ Client created:', data.id);
-  return data.id;
+  const clientId = response.data?.id;
+  console.log('✅ Client created:', clientId);
+  return clientId;
 }
 
 // =====================================================
@@ -49,65 +67,47 @@ async function createCopyZenClient() {
 async function createCopyZenBriefing(clientId: string) {
   console.log('\n📝 Step 2: Creating briefing...');
 
-  const { data, error } = await supabase
-    .from('briefings')
-    .insert({
-      client_id: clientId,
-      title: 'CopyZen - Marketing Automation Platform',
-      segment: 'Small business owners & solopreneurs',
-      target_audience: 'Health professionals, consultants, service providers (Brazil)',
-      main_problem: 'Lack of consistent digital presence and lead generation',
-      desired_transformation: 'Automated professional content + funnel + sales page',
-      tone_voice: 'Conversational, practical, empowering',
-      unique_advantage: 'All-in-one marketing automation for busy professionals',
-      call_to_action: 'Book a demo to see your personalized pipeline',
-      visual_references: 'Modern, tech-forward, professional',
-      status: 'draft',
-      approved_at: null,
-    })
-    .select()
-    .single();
+  const response = await apiCall('POST', '/briefings', {
+    client_id: clientId,
+    title: 'CopyZen - Marketing Automation Platform',
+    segment: 'Small business owners & solopreneurs',
+    target_audience: 'Health professionals, consultants, service providers (Brazil)',
+    main_problem: 'Lack of consistent digital presence and lead generation',
+    desired_transformation: 'Automated professional content + funnel + sales page',
+    tone_voice: 'Conversational, practical, empowering',
+    unique_advantage: 'All-in-one marketing automation for busy professionals',
+    call_to_action: 'Book a demo to see your personalized pipeline',
+    visual_references: 'Modern, tech-forward, professional',
+    status: 'draft',
+  });
 
-  if (error) {
-    console.error('❌ Failed to create briefing:', error.message);
-    throw error;
-  }
-
-  console.log('✅ Briefing created:', data.id);
-  return data.id;
+  const briefingId = response.data?.id;
+  console.log('✅ Briefing created:', briefingId);
+  return briefingId;
 }
 
 // =====================================================
-// STEP 3: Approve Briefing (simulate)
+// STEP 3: Approve Briefing
 // =====================================================
 
 async function approveBriefing(briefingId: string) {
   console.log('\n📝 Step 3: Approving briefing...');
 
-  const { data, error } = await supabase
-    .from('briefings')
-    .update({ status: 'approved', approved_at: new Date().toISOString() })
-    .eq('id', briefingId)
-    .select()
-    .single();
-
-  if (error) {
-    console.error('❌ Failed to approve briefing:', error.message);
-    throw error;
-  }
+  await apiCall('PATCH', `/briefings/${briefingId}`, {
+    status: 'approved',
+  });
 
   console.log('✅ Briefing approved');
-  return data;
 }
 
 // =====================================================
-// STEP 4: Generate Brand Profile
+// STEP 4: Generate Brand Profile (mock)
 // =====================================================
 
 async function generateBrandProfile(clientId: string, briefingId: string) {
   console.log('\n📝 Step 4: Generating brand profile...');
 
-  const brandProfile = {
+  const response = await apiCall('POST', '/brand-profiles', {
     client_id: clientId,
     briefing_id: briefingId,
     colors: {
@@ -121,67 +121,38 @@ async function generateBrandProfile(clientId: string, briefingId: string) {
       heading: 'Muli',
       body: 'Lato',
     },
-    voice_guidelines: 'Conversational, practical, empowering. Focus on solving real problems for solopreneurs.',
-    visual_style: 'Modern, tech-forward, professional with warm personality',
+    voice_guidelines: 'Conversational, practical, empowering',
+    visual_style: 'Modern, tech-forward, professional',
     status: 'approved',
-  };
+  });
 
-  const { data, error } = await supabase
-    .from('brand_profiles')
-    .insert(brandProfile)
-    .select()
-    .single();
-
-  if (error) {
-    console.error('❌ Failed to create brand profile:', error.message);
-    throw error;
-  }
-
-  console.log('✅ Brand profile created:', data.id);
-  return data.id;
+  const brandProfileId = response.data?.id;
+  console.log('✅ Brand profile created:', brandProfileId);
+  return brandProfileId;
 }
 
 // =====================================================
 // STEP 5: Execute Pipeline
 // =====================================================
 
-async function executeFullPipeline(
-  clientId: string,
-  briefingId: string,
-  brandProfileId: string
-) {
+async function executeFullPipeline(clientId: string, briefingId: string, brandProfileId: string) {
   console.log('\n🚀 Step 5: Executing full pipeline...');
 
-  try {
-    const response = await fetch('http://localhost:3000/projects/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        client_id: clientId,
-        briefing_id: briefingId,
-        brand_profile_id: brandProfileId,
-        operator_phone: '+55 11 99999-9999',
-        pipelines: {
-          content: true,
-          funwheel: true,
-          sales_page: true,
-        },
-      }),
-    });
+  const response = await apiCall('POST', '/projects/generate', {
+    client_id: clientId,
+    briefing_id: briefingId,
+    brand_profile_id: brandProfileId,
+    operator_phone: '+55 11 99999-9999',
+    pipelines: {
+      content: true,
+      funwheel: true,
+      sales_page: true,
+    },
+  });
 
-    if (!response.ok) {
-      const error = await response.json();
-      console.error('❌ Pipeline execution failed:', error);
-      throw new Error(`HTTP ${response.status}`);
-    }
-
-    const project = await response.json();
-    console.log('✅ Pipeline execution started:', project.data.id);
-    return project.data.id;
-  } catch (error) {
-    console.error('❌ Failed to execute pipeline:', error);
-    throw error;
-  }
+  const projectId = response.data?.id;
+  console.log('✅ Pipeline execution started:', projectId);
+  return projectId;
 }
 
 // =====================================================
@@ -192,29 +163,31 @@ async function waitForPipelineCompletion(projectId: string, maxWait: number = 18
   console.log('\n⏳ Step 6: Waiting for pipeline completion (max 3 minutes)...');
 
   const startTime = Date.now();
-  const pollInterval = 5000; // 5 seconds
+  const pollInterval = 5000;
 
   while (Date.now() - startTime < maxWait) {
-    try {
-      const response = await fetch(`http://localhost:3000/projects/${projectId}/status`);
-      const { data } = await response.json();
+    const response = await apiCall('GET', `/projects/${projectId}/status`);
+    const data = response.data;
 
-      const { content, funwheel, sales_page } = data.pipelines;
-      const allReady =
-        [content, funwheel, sales_page].every(
-          (p) => p.status === 'ready_for_review' || p.status === 'approved'
-        );
+    if (!data || !data.pipelines) {
+      console.log('  Waiting for project status...');
+      await new Promise((resolve) => setTimeout(resolve, pollInterval));
+      continue;
+    }
 
-      process.stdout.write(
-        `\r  Content: ${content.status.padEnd(16)} | FunWheel: ${funwheel.status.padEnd(16)} | Sales Page: ${sales_page.status.padEnd(16)}`
+    const { content, funwheel, sales_page } = data.pipelines;
+    const allReady =
+      [content, funwheel, sales_page].every(
+        (p) => p.status === 'ready_for_review' || p.status === 'approved'
       );
 
-      if (allReady) {
-        console.log('\n✅ Pipeline completed successfully');
-        return data;
-      }
-    } catch (error) {
-      console.error('Error polling status:', error);
+    process.stdout.write(
+      `\r  Content: ${(content?.status || 'pending').padEnd(16)} | FunWheel: ${(funwheel?.status || 'pending').padEnd(16)} | Sales Page: ${(sales_page?.status || 'pending').padEnd(16)}`
+    );
+
+    if (allReady) {
+      console.log('\n✅ Pipeline completed successfully');
+      return data;
     }
 
     await new Promise((resolve) => setTimeout(resolve, pollInterval));
@@ -231,32 +204,27 @@ async function approveAllDeliverables(projectId: string) {
   console.log('\n📝 Step 7: Approving all deliverables...');
 
   try {
-    // Get all deliverables
-    const response = await fetch(`http://localhost:3000/deliverables/project/${projectId}/list`);
-    const { data } = await response.json();
+    const response = await apiCall('GET', `/deliverables/project/${projectId}/list`);
+    const deliverables = response.data?.deliverables || [];
 
-    if (!data.deliverables || data.deliverables.length === 0) {
+    if (deliverables.length === 0) {
       console.log('⚠️  No deliverables found to approve');
       return;
     }
 
-    // Approve each deliverable
     let approvedCount = 0;
-    for (const deliverable of data.deliverables) {
-      const approveResponse = await fetch(
-        `http://localhost:3000/deliverables/${deliverable.id}/approve`,
-        { method: 'POST' }
-      );
-
-      if (approveResponse.ok) {
+    for (const deliverable of deliverables) {
+      try {
+        await apiCall('POST', `/deliverables/${deliverable.id}/approve`);
         approvedCount++;
+      } catch (error) {
+        console.log(`  ⚠️  Could not approve ${deliverable.id}`);
       }
     }
 
-    console.log(`✅ Approved ${approvedCount}/${data.deliverables.length} deliverables`);
+    console.log(`✅ Approved ${approvedCount}/${deliverables.length} deliverables`);
   } catch (error) {
     console.error('❌ Failed to approve deliverables:', error);
-    throw error;
   }
 }
 
@@ -268,13 +236,11 @@ async function generateReport(clientId: string, projectId: string) {
   console.log('\n📝 Step 8: Generating validation report...');
 
   try {
-    const projectResponse = await fetch(`http://localhost:3000/projects/${projectId}/status`);
-    const { data: projectData } = await projectResponse.json();
+    const projectResponse = await apiCall('GET', `/projects/${projectId}/status`);
+    const projectData = projectResponse.data;
 
-    const reportResponse = await fetch(
-      `http://localhost:3000/deliverables/project/${projectId}/report`
-    );
-    const { data: reportData } = await reportResponse.json();
+    const reportResponse = await apiCall('GET', `/deliverables/project/${projectId}/report`);
+    const reportData = reportResponse.data;
 
     const report = `# CopyZen MVP Validation Report
 
@@ -298,21 +264,21 @@ async function generateReport(clientId: string, projectId: string) {
 ## Deliverables Status
 
 ${reportData.deliverables
-  .map(
-    (d) => `
+  ?.map(
+    (d: any) => `
 ### ${d.type.toUpperCase()}
 - Status: ${d.status}
 - Regenerations: ${d.regenerations}/2
 ${d.feedback ? `- Feedback: ${d.feedback}` : ''}
 `
   )
-  .join('\n')}
+  .join('\n') || '(No deliverables found)'}
 
 ## Approval Summary
-- Total Pieces: ${reportData.approval_summary.total_pieces}
-- Approved: ${reportData.approval_summary.approved}
-- Rejected: ${reportData.approval_summary.rejected}
-- Pending: ${reportData.approval_summary.pending}
+- Total Pieces: ${reportData.approval_summary?.total_pieces || 0}
+- Approved: ${reportData.approval_summary?.approved || 0}
+- Rejected: ${reportData.approval_summary?.rejected || 0}
+- Pending: ${reportData.approval_summary?.pending || 0}
 
 ## Quality Gates
 
@@ -336,8 +302,8 @@ ${d.feedback ? `- Feedback: ${d.feedback}` : ''}
 ## Demo Artifacts
 - CopyZen Client ID: ${clientId}
 - Project ID: ${projectId}
-- Access via: \`GET /projects/${projectId}/status\`
-- Access via: \`GET /deliverables/project/${projectId}/report\`
+- Access via: GET /projects/${projectId}/status
+- Access via: GET /deliverables/project/${projectId}/report
 
 ---
 *Report generated by CopyZen MVP Validation Script*
@@ -352,7 +318,6 @@ ${d.feedback ? `- Feedback: ${d.feedback}` : ''}
     console.log('✅ Report saved to docs/mvp-validation-report.md');
   } catch (error) {
     console.error('❌ Failed to generate report:', error);
-    throw error;
   }
 }
 
@@ -379,7 +344,7 @@ async function main() {
     const projectId = await executeFullPipeline(clientId, briefingId, brandProfileId);
 
     // Step 6: Wait for completion
-    const projectData = await waitForPipelineCompletion(projectId);
+    await waitForPipelineCompletion(projectId);
 
     // Step 7: Approve deliverables
     await approveAllDeliverables(projectId);

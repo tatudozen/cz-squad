@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { config } from './utils/config.ts';
 import { logger } from './utils/logger.ts';
+import clientsRouter from './routes/clients.ts';
 import briefingsRouter from './routes/briefings.ts';
 import brandProfilesRouter from './routes/brand-profiles.ts';
 import copyRouter from './routes/copy.ts';
@@ -45,6 +46,9 @@ app.get('/metrics', (req: Request, res: Response) => {
     memory: process.memoryUsage(),
   });
 });
+
+// Clients routes (Story 1.3)
+app.use('/clients', clientsRouter);
 
 // Briefings routes (Story 1.3)
 app.use('/briefings', briefingsRouter);
