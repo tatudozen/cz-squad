@@ -15,8 +15,7 @@ describe('Presentation Service (FunWheel Etapa A)', () => {
       id: 'briefing-123',
       client_id: 'client-456',
       status: 'approved',
-  // @ts-expect-error Test data with partial briefing fields
-      business_name: 'Clínica Silva',
+business_name: 'Clínica Silva',
       segment: 'healthcare',
       target_audience: 'professionals aged 30-55',
       voice_tone: 'professional and warm',
@@ -219,8 +218,7 @@ describe('Presentation Service (FunWheel Etapa A)', () => {
         presentation.solution.description +
         presentation.benefits.title;
 
-  // @ts-expect-error Test data with partial briefing fields
-      expect(fullContent).toContain(testBriefing.business_name);
+expect(fullContent).toContain(testBriefing.business_name);
       if (testBriefing.target_audience) {
         expect(fullContent.toLowerCase()).toContain(testBriefing.target_audience.toLowerCase());
       }
