@@ -45,7 +45,6 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          env_file: /dev/null
           envs: DOCKER_REGISTRY,ANTHROPIC_API_KEY,SUPABASE_URL,SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY
           script: |
             docker pull ${{ secrets.DOCKER_REGISTRY }}/copyzen-api:latest
