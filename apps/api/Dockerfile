@@ -27,8 +27,8 @@ RUN apk add --no-cache dumb-init
 COPY package*.json ./
 
 # Copy built artifacts
-COPY --from=builder /app/apps/api/dist ./dist
-COPY --from=builder /app/packages/shared/dist ./node_modules/@copyzen/shared
+COPY --from=builder /app/apps/api/dist/apps/api/src ./dist
+COPY --from=builder /app/apps/api/dist/packages/shared/src ./node_modules/@copyzen/shared
 
 # Install production dependencies only
 RUN npm ci --omit=dev
