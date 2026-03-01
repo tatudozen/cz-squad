@@ -1,1 +1,1 @@
-import type { AstroGlobal } from 'astro';
+// Astro types defined in .astro/types.d.ts
