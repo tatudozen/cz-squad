@@ -4,6 +4,7 @@
  */
 import { pathToFileURL } from 'node:url';
 import { resolve as resolvePath } from 'node:path';
+import { existsSync } from 'node:fs';
 
 export async function resolve(specifier, context, nextResolve) {
   // Skip file:// URLs and already-resolved paths
@@ -15,11 +16,22 @@ export async function resolve(specifier, context, nextResolve) {
   if (specifier.startsWith('@copyzen/shared/')) {
     const modulePath = specifier.replace('@copyzen/shared/', '');
 
-    // Resolve to node_modules location with /index.js for directory imports
-    const nodeModulesPath = resolvePath(process.cwd(), 'node_modules', '@copyzen', 'shared', 'dist', modulePath);
-    const fullPath = modulePath.endsWith('.js') ? nodeModulesPath : `${nodeModulesPath}/index.js`;
-    const fileUrl = pathToFileURL(fullPath).href;
+    // Determine the full path - try .js file first, then /index.js
+    const basePath = resolvePath(process.cwd(), 'node_modules', '@copyzen', 'shared', 'dist', modulePath);
 
+    let fullPath;
+    if (modulePath.endsWith('.js')) {
+      // Already has .js extension
+      fullPath = basePath;
+    } else if (existsSync(`${basePath}.js`)) {
+      // Try as .js file directly (e.g., services/brand-profile-service.js)
+      fullPath = `${basePath}.js`;
+    } else {
+      // Otherwise treat as directory with index.js (e.g., repositories/index.js)
+      fullPath = `${basePath}/index.js`;
+    }
+
+    const fileUrl = pathToFileURL(fullPath).href;
     return { url: fileUrl, shortCircuit: true };
   }
 
