@@ -1,4 +1,4 @@
-import { Client, Briefing, BrandProfile } from '../supabase.js';
+import { Client, Briefing, BrandProfile } from '../supabase.js.js';
 export declare class ClientRepository {
     static create(data: unknown): Promise<Client>;
     static getById(id: string): Promise<Client | null>;

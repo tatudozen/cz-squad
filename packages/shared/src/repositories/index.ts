@@ -1,6 +1,6 @@
 // Repository Pattern - Data Access Abstraction
 
-import { supabaseAdmin, Client, Briefing, BrandProfile, ClientInputSchema, BriefingInputSchema } from '../supabase.js';
+import { supabaseAdmin, Client, Briefing, BrandProfile, ClientInputSchema, BriefingInputSchema } from '../supabase.js.js';
 
 // =====================================================
 // CLIENT REPOSITORY

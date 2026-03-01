@@ -1,4 +1,4 @@
-import { Briefing, BrandProfile } from '../supabase.js';
+import { Briefing, BrandProfile } from '../supabase.js.js';
 export interface DeliverablePackage {
     instagram_carousel: InstagramCarousel;
     linkedin_posts: LinkedInPost[];

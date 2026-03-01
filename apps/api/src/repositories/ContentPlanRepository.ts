@@ -6,8 +6,8 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
-import { ContentPlan } from "../types/content.js"
-import { logger } from "../utils/logger.js"
+import { ContentPlan } from "../types/content.js.js"
+import { logger } from "../utils/logger.js.js"
 
 /**
  * ContentPlanRepository provides database operations for content plans

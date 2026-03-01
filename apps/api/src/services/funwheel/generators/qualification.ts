@@ -9,7 +9,7 @@ import type {
   QualificationResult,
   QualificationTier,
   QuizQuestion,
-} from '../../../types/funwheel.js';
+} from '../../../types/funwheel.js.js';
 
 /**
  * Generate a qualification quiz based on briefing and business profile

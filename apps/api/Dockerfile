@@ -29,10 +29,20 @@ COPY package*.json ./
 COPY apps/api/package*.json ./apps/api/
 COPY packages/shared/package*.json ./packages/shared/
 
-# Copy node_modules from builder (includes resolved dependencies and workspace symlinks)
+# Copy package files for npm install
+COPY package*.json ./
+COPY apps/api/package*.json ./apps/api/
+COPY packages/shared/package*.json ./packages/shared/
+
+# Copy production node_modules (dependencies only)
 COPY --from=builder /app/node_modules ./node_modules
 
-# Copy built artifacts
+# Create @copyzen/shared module with compiled dist
+RUN mkdir -p ./node_modules/@copyzen/shared
+COPY --from=builder /app/packages/shared/dist ./node_modules/@copyzen/shared/dist
+COPY --from=builder /app/packages/shared/package.json ./node_modules/@copyzen/shared/package.json
+
+# Copy built API artifacts
 COPY --from=builder /app/apps/api/dist/apps/api/src ./dist
 
 # Health check

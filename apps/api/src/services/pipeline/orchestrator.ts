@@ -6,8 +6,8 @@
  * Story 4.3: End-to-End Pipeline Orchestration
  */
 
-import { logger } from "../../utils/logger.js"
-import type { ProjectRecord, PipelineStatus } from "../../repositories/ProjectRepository.js"
+import { logger } from "../../utils/logger.js.js"
+import type { ProjectRecord, PipelineStatus } from "../../repositories/ProjectRepository.js.js"
 
 // =====================================================
 // TYPES

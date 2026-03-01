@@ -1,5 +1,5 @@
-import { Briefing } from '../supabase.js';
-import { ColorPalette, VoiceGuidelines } from '../schemas/brand-profile-request.js';
+import { Briefing } from '../supabase.js.js';
+import { ColorPalette, VoiceGuidelines } from '../schemas/brand-profile-request.js.js';
 export interface GeneratedBrandProfile {
     color_palette: ColorPalette;
     voice_guidelines: VoiceGuidelines;

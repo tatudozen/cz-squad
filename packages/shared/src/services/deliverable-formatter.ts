@@ -1,6 +1,6 @@
 // Deliverable Formatter Service
 // Packages generated copy into deliverable formats (Instagram, LinkedIn, landing page)
-import { Briefing, BrandProfile } from '../supabase.js';
+import { Briefing, BrandProfile } from '../supabase.js.js';
 
 export interface DeliverablePackage {
   instagram_carousel: InstagramCarousel;

@@ -7,10 +7,10 @@
 
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { createContentPlan } from "../services/content/index.js";
-import contentPlanRepository from "../repositories/ContentPlanRepository.js";
+import { createContentPlan } from "../services/content/index.js.js";
+import contentPlanRepository from "../repositories/ContentPlanRepository.js.js";
 import { BriefingRepository, BrandProfileRepository } from '@copyzen/shared/repositories';
-import { logger } from "../utils/logger.js";
+import { logger } from "../utils/logger.js.js";
 
 const router = Router();
 

@@ -4,7 +4,7 @@
  */
 
 import { randomUUID } from 'crypto';
-import type { SalesPageContent } from '../../types/sales-page.js';
+import type { SalesPageContent } from '../../types/sales-page.js.js';
 import type { BrandProfile } from '@copyzen/shared/supabase';
 
 export interface SalesPageBuildMetadata {

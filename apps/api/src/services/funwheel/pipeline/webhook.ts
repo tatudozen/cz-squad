@@ -4,7 +4,7 @@
  */
 
 import crypto from 'crypto';
-import type { WebhookPayload, WebhookRetryConfig } from '../../../types/webhook.js';
+import type { WebhookPayload, WebhookRetryConfig } from '../../../types/webhook.js.js';
 
 const DEFAULT_RETRY_CONFIG: WebhookRetryConfig = {
   maxRetries: 3,

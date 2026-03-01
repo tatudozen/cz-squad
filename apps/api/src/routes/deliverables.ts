@@ -7,16 +7,16 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import deliverableRepository from '../repositories/DeliverableRepository.js';
-import projectRepository from '../repositories/ProjectRepository.js';
+import deliverableRepository from '../repositories/DeliverableRepository.js.js';
+import projectRepository from '../repositories/ProjectRepository.js.js';
 import {
   approveDeliverable,
   rejectDeliverable,
   regenerateDeliverable,
   buildDeliveryReport,
   getProjectApprovalStatus,
-} from '../services/approval/approval-workflow.js';
-import { ApiError } from '../middleware/error-handler.js';
+} from '../services/approval/approval-workflow.js.js';
+import { ApiError } from '../middleware/error-handler.js.js';
 
 const router = Router();
 

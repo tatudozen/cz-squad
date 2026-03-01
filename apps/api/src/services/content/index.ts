@@ -3,7 +3,7 @@
  * Exports all content generation services
  */
 
-export { createContentPlan } from "./strategy.js";
+export { createContentPlan } from "./strategy.js.js";
 export type {
   ContentPlan,
   ContentPlanPost,

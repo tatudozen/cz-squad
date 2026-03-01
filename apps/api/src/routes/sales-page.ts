@@ -5,11 +5,11 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { BrandProfileRepository, BriefingRepository } from '@copyzen/shared/repositories/index';
-import { generateSalesPageContent } from '../services/sales-page/generator.js';
-import { buildSalesPage } from '../services/sales-page/builder.js';
-import { ApiError } from '../middleware/error-handler.js';
-import type { OfferDetails } from '../types/sales-page.js';
+import { BrandProfileRepository, BriefingRepository } from '@copyzen/shared/repositories/index.js';
+import { generateSalesPageContent } from '../services/sales-page/generator.js.js';
+import { buildSalesPage } from '../services/sales-page/builder.js.js';
+import { ApiError } from '../middleware/error-handler.js.js';
+import type { OfferDetails } from '../types/sales-page.js.js';
 
 const router = Router();
 

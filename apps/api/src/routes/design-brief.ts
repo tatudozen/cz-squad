@@ -7,7 +7,7 @@
 
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { logger } from "../utils/logger.js";
+import { logger } from "../utils/logger.js.js";
 
 const router = Router();
 

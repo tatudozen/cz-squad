@@ -7,14 +7,14 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { BrandProfileRepository, BriefingRepository } from '@copyzen/shared/repositories/index';
+import { BrandProfileRepository, BriefingRepository } from '@copyzen/shared/repositories/index.js';
 import {
   orchestrateProject,
   retryPipeline,
   buildProjectStatus,
-} from '../services/pipeline/orchestrator.js';
-import projectRepository, { type PipelineStatus } from '../repositories/ProjectRepository.js';
-import { ApiError } from '../middleware/error-handler.js';
+} from '../services/pipeline/orchestrator.js.js';
+import projectRepository, { type PipelineStatus } from '../repositories/ProjectRepository.js.js';
+import { ApiError } from '../middleware/error-handler.js.js';
 
 const router = Router();
 
