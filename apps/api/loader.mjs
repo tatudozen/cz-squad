@@ -1,30 +1,32 @@
 /**
  * ESM Loader for resolving @copyzen/* path aliases at runtime
- * Allows Node.js to resolve TypeScript path aliases without TypeScript compilation
+ * Maps @copyzen/shared/* to the compiled dist folder at node_modules/@copyzen/shared/dist/*
  */
+import { pathToFileURL } from 'node:url';
+import { resolve as resolvePath } from 'node:path';
 
 export async function resolve(specifier, context, nextResolve) {
+  // Skip file:// URLs and already-resolved paths
+  if (specifier.startsWith('file://') || specifier.includes('/dist/')) {
+    return nextResolve(specifier, context);
+  }
+
   // Handle @copyzen/shared/* imports
   if (specifier.startsWith('@copyzen/shared/')) {
-    // Map @copyzen/shared/repositories → @copyzen/shared/dist/repositories/index.js
     const modulePath = specifier.replace('@copyzen/shared/', '');
 
-    // Check if it already ends with .js (explicit index import)
-    let resolvedSpecifier;
-    if (modulePath.endsWith('.js')) {
-      // Already has .js extension, use as-is but replace with dist path
-      resolvedSpecifier = specifier.replace('@copyzen/shared/', '@copyzen/shared/dist/');
-    } else {
-      // Add /index.js for directory imports
-      resolvedSpecifier = `@copyzen/shared/dist/${modulePath}/index.js`;
-    }
+    // Resolve to node_modules location with /index.js for directory imports
+    const nodeModulesPath = resolvePath(process.cwd(), 'node_modules', '@copyzen', 'shared', 'dist', modulePath);
+    const fullPath = modulePath.endsWith('.js') ? nodeModulesPath : `${nodeModulesPath}/index.js`;
+    const fileUrl = pathToFileURL(fullPath).href;
 
-    return nextResolve(resolvedSpecifier, context);
+    return { url: fileUrl };
   }
 
   // Handle @copyzen/shared import (main export)
   if (specifier === '@copyzen/shared') {
-    return nextResolve('@copyzen/shared/dist/index.js', context);
+    const mainPath = resolvePath(process.cwd(), 'node_modules', '@copyzen', 'shared', 'dist', 'index.js');
+    return { url: pathToFileURL(mainPath).href };
   }
 
   // For all other imports, use default resolution
