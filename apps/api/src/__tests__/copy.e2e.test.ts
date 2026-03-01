@@ -41,7 +41,6 @@ beforeAll(async () => {
     segment: 'health',
     target_audience: 'Mulheres 30-50',
     voice_tone: 'consultivo, profissional',
-    differentiators: 'Atendimento humanizado',
     differentiators: 'Atendimento humanizado, 20 anos de experiência',
   });
 
