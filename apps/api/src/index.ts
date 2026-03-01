@@ -1,19 +1,19 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { config } from './utils/config.ts';
-import { logger } from './utils/logger.ts';
-import clientsRouter from './routes/clients.ts';
-import briefingsRouter from './routes/briefings.ts';
-import brandProfilesRouter from './routes/brand-profiles.ts';
-import copyRouter from './routes/copy.ts';
-import contentRouter from './routes/content.ts';
-import carouselRouter from './routes/carousel.ts';
-import staticPostRouter from './routes/static-post.ts';
-import designBriefRouter from './routes/design-brief.ts';
-import funwheelRouter from './routes/funwheel.ts';
-import salesPageRouter from './routes/sales-page.ts';
-import projectsRouter from './routes/projects.ts';
-import deliverablesRouter from './routes/deliverables.ts';
-import { errorHandler } from './middleware/error-handler.ts';
+import { config } from './utils/config'
+import { logger } from './utils/logger'
+import clientsRouter from './routes/clients'
+import briefingsRouter from './routes/briefings'
+import brandProfilesRouter from './routes/brand-profiles'
+import copyRouter from './routes/copy'
+import contentRouter from './routes/content'
+import carouselRouter from './routes/carousel'
+import staticPostRouter from './routes/static-post'
+import designBriefRouter from './routes/design-brief'
+import funwheelRouter from './routes/funwheel'
+import salesPageRouter from './routes/sales-page'
+import projectsRouter from './routes/projects'
+import deliverablesRouter from './routes/deliverables'
+import { errorHandler } from './middleware/error-handler'
 
 const app = express();
 

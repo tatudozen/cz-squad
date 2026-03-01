@@ -6,8 +6,8 @@
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { logger } from '../utils/logger.ts';
-import { config } from '../utils/config.ts';
+import { logger } from '../utils/logger'
+import { config } from '../utils/config'
 
 // =====================================================
 // TYPES

@@ -6,7 +6,7 @@
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { logger } from '../utils/logger.ts';
+import { logger } from '../utils/logger'
 
 export type ProjectStatus = 'pending' | 'generating' | 'ready_for_review' | 'approved' | 'completed' | 'delivered' | 'failed';
 export type PipelineStatus = 'pending' | 'generating' | 'ready_for_review' | 'approved' | 'failed' | 'skipped';

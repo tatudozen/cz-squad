@@ -6,8 +6,8 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createContentPlan } from '../strategy.ts';
-import { llmAdapter } from '../../../utils/llm-adapter.ts';
+import { createContentPlan } from '../strategy'
+import { llmAdapter } from '../../../utils/llm-adapter'
 
 // Mock LLM responses
 const MOCK_LLM_RESPONSE = `

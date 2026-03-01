@@ -1,10 +1,29 @@
 {
-  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "resolveJsonModule": true,
+    "target": "ES2020",
     "lib": ["ES2020"],
-    "skipLibCheck": true
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "strict": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "baseUrl": "../../",
+    "paths": {
+      "@shared/*": ["packages/shared/src/*"],
+      "@api/*": ["apps/api/src/*"],
+      "@pages/*": ["apps/pages/src/*"]
+    },
+    "outDir": "dist",
+    "rootDir": "src"
   },
   "include": ["src"],
   "exclude": ["**/*.test.ts", "dist", "tests"]

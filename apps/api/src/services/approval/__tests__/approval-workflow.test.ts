@@ -10,9 +10,9 @@ import {
   regenerateDeliverable,
   buildDeliveryReport,
   getProjectApprovalStatus,
-} from '../approval-workflow.ts';
-import deliverableRepository from '../../../repositories/DeliverableRepository.ts';
-import projectRepository from '../../../repositories/ProjectRepository.ts';
+} from '../approval-workflow'
+import deliverableRepository from '../../../repositories/DeliverableRepository'
+import projectRepository from '../../../repositories/ProjectRepository'
 
 // Mock dependencies
 vi.mock('../../../repositories/DeliverableRepository.ts');

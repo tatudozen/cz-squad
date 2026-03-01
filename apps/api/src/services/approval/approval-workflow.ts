@@ -5,11 +5,11 @@
  * Story 4.4: Operator Review & Approval Flow
  */
 
-import { logger } from '../../utils/logger.ts';
+import { logger } from '../../utils/logger'
 import deliverableRepository, {
   type DeliverableStatus,
-} from '../../repositories/DeliverableRepository.ts';
-import projectRepository from '../../repositories/ProjectRepository.ts';
+} from '../../repositories/DeliverableRepository'
+import projectRepository from '../../repositories/ProjectRepository'
 
 // =====================================================
 // TYPES
