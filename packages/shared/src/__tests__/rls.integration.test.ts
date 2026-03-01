@@ -35,8 +35,7 @@ describe('RLS Integration Tests', () => {
       segment: 'health',
       target_audience: 'Health-conscious professionals',
       voice_tone: 'professional',
-      objectives: ['Lead generation'],
-      differentiators: 'Premium healthcare',
+      differentiators: 'Premium healthcare services',
     });
 
     briefing2 = await BriefingRepository.create({
@@ -45,8 +44,7 @@ describe('RLS Integration Tests', () => {
       segment: 'consulting',
       target_audience: 'Enterprise customers',
       voice_tone: 'consultative',
-      objectives: ['Advisory services'],
-      differentiators: 'Expert consulting',
+      differentiators: 'Expert consulting services',
     });
 
     console.log('✅ Test data created\n');

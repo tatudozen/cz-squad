@@ -140,13 +140,13 @@ export type ClientInput = z.infer<typeof ClientInputSchema>;
 
 export const BriefingInputSchema = z.object({
   client_id: z.string().uuid('Invalid client ID'),
-  title: z.string().min(1).max(255),
+  business_name: z.string().min(1).max(255),
   segment: z.string().max(50).optional(),
   target_audience: z.string().optional(),
   main_problem: z.string().optional(),
   desired_transformation: z.string().optional(),
-  tone_voice: z.string().max(100).optional(),
-  unique_advantage: z.string().optional(),
+  voice_tone: z.string().max(100).optional(),
+  differentiators: z.string().optional(),
   call_to_action: z.string().optional(),
   visual_references: z.string().optional(),
 });

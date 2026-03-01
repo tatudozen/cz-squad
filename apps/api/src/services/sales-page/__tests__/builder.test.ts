@@ -334,7 +334,7 @@ describe('Sales Page Builder', () => {
     it('should have valid timestamp', async () => {
       const build = await buildSalesPage(mockSalesPageContent, mockBrandProfile, 'test-slug');
 
-      expect(build.created_at).toMatch(/^\\d{4}-\\d{2}-\\d{2}T/);
+      expect(build.created_at).toMatch(/^\d{4}-\d{2}-\d{2}T/);
     });
   });
 

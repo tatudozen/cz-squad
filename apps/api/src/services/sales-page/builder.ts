@@ -659,19 +659,21 @@ export async function buildSalesPage(
  */
 export async function deploySalesPageToVPS(
   buildOutput: SalesPageBuildOutput,
-  _clientSlug: string,
+  clientSlug: string,
   _vpsEndpoint?: string
 ): Promise<SalesPageDeploymentOutput> {
   const deploymentStartTime = Date.now();
 
   try {
     // In production, would call the actual VPS endpoint
-    // For MVP, we simulate success
+    // For MVP, we simulate success with a small delay
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     const deploymentTimeMs = Date.now() - deploymentStartTime;
 
     const deploymentOutput: SalesPageDeploymentOutput = {
       status: 'deployed',
-      url: `https://vendas.copyzen.com.br/page-${buildOutput.sales_page_id.substring(0, 8)}`,
+      url: `https://vendas.copyzen.com.br/page-${clientSlug}`,
       deployment_time_ms: deploymentTimeMs,
       file_size: buildOutput.metadata.estimated_file_size,
       lighthouse_score: buildOutput.performance_score?.lighthouse_score,
