@@ -3,7 +3,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { BrandProfileRepository, BriefingRepository } from '@copyzen/shared/repositories/index.js';
 import { GenerateCopyRequestSchema } from '@copyzen/shared/schemas/index.js';
 import { generateCopy } from '@copyzen/shared/services/copywriting-service';
-import { ApiError } from '../middleware/error-handler.js.js';
+import { ApiError } from '../middleware/error-handler.js';
 
 const router = Router();
 

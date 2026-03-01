@@ -1,5 +1,5 @@
-import { BrandProfile } from '../supabase.js.js';
-import { CopyType } from '../schemas/copy-request.js.js';
+import { BrandProfile } from '../supabase.js';
+import { CopyType } from '../schemas/copy-request.js';
 export interface CopyValidation {
     respects_tone: boolean;
     includes_keywords: string[];

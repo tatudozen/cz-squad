@@ -12,9 +12,9 @@ import {
   orchestrateProject,
   retryPipeline,
   buildProjectStatus,
-} from '../services/pipeline/orchestrator.js.js';
-import projectRepository, { type PipelineStatus } from '../repositories/ProjectRepository.js.js';
-import { ApiError } from '../middleware/error-handler.js.js';
+} from '../services/pipeline/orchestrator.js';
+import projectRepository, { type PipelineStatus } from '../repositories/ProjectRepository.js';
+import { ApiError } from '../middleware/error-handler.js';
 
 const router = Router();
 

@@ -7,15 +7,15 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { createClient } from '@supabase/supabase-js';
 import { BrandProfileRepository, BriefingRepository } from '@copyzen/shared/repositories/index.js';
-import { generatePresentation } from '../services/funwheel/generators/presentation.js.js';
+import { generatePresentation } from '../services/funwheel/generators/presentation.js';
 import {
   generateQualificationQuiz,
   createQualificationResult,
-} from '../services/funwheel/generators/qualification.js.js';
-import { sendLeadNotification, EvolutionClient } from '../services/funwheel/pipeline/notification.js.js';
-import { testWebhook } from '../services/funwheel/pipeline/webhook.js.js';
-import { LeadEventRepository } from '../repositories/LeadEventRepository.js.js';
-import { ApiError } from '../middleware/error-handler.js.js';
+} from '../services/funwheel/generators/qualification.js';
+import { sendLeadNotification, EvolutionClient } from '../services/funwheel/pipeline/notification.js';
+import { testWebhook } from '../services/funwheel/pipeline/webhook.js';
+import { LeadEventRepository } from '../repositories/LeadEventRepository.js';
+import { ApiError } from '../middleware/error-handler.js';
 
 const router = Router();
 

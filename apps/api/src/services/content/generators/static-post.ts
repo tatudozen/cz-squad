@@ -8,8 +8,8 @@
 import { randomUUID } from 'crypto';
 import { ContentPlanPost, ContentMode } from '@api/types/content';
 import { BrandProfile } from '@copyzen/shared/types';
-import { llmAdapter } from "../../../utils/llm-adapter.js.js";
-import { logger } from "../../../utils/logger.js.js";
+import { llmAdapter } from "../../../utils/llm-adapter.js";
+import { logger } from "../../../utils/logger.js";
 
 export type Platform = 'instagram' | 'linkedin';
 

@@ -6,7 +6,7 @@
  * Story 2.1 uses this for content strategy generation
  */
 
-import { logger } from "./logger.js.js";
+import { logger } from "./logger.js";
 
 export interface LLMOptions {
   temperature?: number;

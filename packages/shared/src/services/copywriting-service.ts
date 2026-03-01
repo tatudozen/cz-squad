@@ -1,7 +1,7 @@
 // Copywriting Service
 // Generates marketing copy while respecting brand voice guidelines
-import { BrandProfile } from '../supabase.js.js';
-import { CopyType, COPY_CONSTRAINTS } from '../schemas/copy-request.js.js';
+import { BrandProfile } from '../supabase.js';
+import { CopyType, COPY_CONSTRAINTS } from '../schemas/copy-request.js';
 
 export interface CopyValidation {
   respects_tone: boolean;

@@ -1,10 +1,10 @@
 // Brand Profile Generation Service
 // Generates brand profiles using Claude API based on briefings
-import { Briefing } from '../supabase.js.js';
+import { Briefing } from '../supabase.js';
 import {
   ColorPalette,
   VoiceGuidelines,
-} from '../schemas/brand-profile-request.js.js';
+} from '../schemas/brand-profile-request.js';
 
 export interface GeneratedBrandProfile {
   color_palette: ColorPalette;

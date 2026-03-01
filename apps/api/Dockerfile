@@ -45,6 +45,9 @@ COPY --from=builder /app/packages/shared/package.json ./node_modules/@copyzen/sh
 # Copy built API artifacts
 COPY --from=builder /app/apps/api/dist/apps/api/src ./dist
 
+# Copy ESM loader for path alias resolution
+COPY --from=builder /app/apps/api/loader.mjs ./loader.mjs
+
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
@@ -52,4 +55,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 EXPOSE 3000
 
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "dist/index.js"]
+CMD ["node", "--loader", "./loader.mjs", "dist/index.js"]

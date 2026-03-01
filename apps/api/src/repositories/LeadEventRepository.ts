@@ -4,7 +4,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { LeadEvent, LeadEventType, LeadEventData } from '../types/funwheel.js.js';
+import type { LeadEvent, LeadEventType, LeadEventData } from '../types/funwheel.js';
 
 export class LeadEventRepository {
   constructor(private supabase: SupabaseClient) {}

@@ -11,7 +11,7 @@ import type {
   FAQSection,
   OfferDetails,
   OfferPackage,
-} from '../../types/sales-page.js.js';
+} from '../../types/sales-page.js';
 
 /**
  * Generate hero section (headline + hook)

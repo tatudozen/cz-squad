@@ -13,7 +13,7 @@ import type {
   ProofSocialSection,
   CTASection,
   DesignBriefFunWheel,
-} from '../../../types/funwheel.js.js';
+} from '../../../types/funwheel.js';
 
 /**
  * Generate a transformation narrative landing page (Etapa A)

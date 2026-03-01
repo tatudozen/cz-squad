@@ -6,7 +6,7 @@ import {
   UpdateBriefingRequestSchema,
   ListBriefingsQuerySchema,
 } from '@copyzen/shared/schemas/index.js';
-import { ApiError } from '../middleware/error-handler.js.js';
+import { ApiError } from '../middleware/error-handler.js';
 
 const router = Router();
 

@@ -3,7 +3,7 @@
  * Handles WhatsApp notifications via Evolution API
  */
 
-import type { LeadEventData, QualificationTier } from '../../../types/funwheel.js.js';
+import type { LeadEventData, QualificationTier } from '../../../types/funwheel.js';
 
 export interface EvolutionApiConfig {
   apiUrl: string;

@@ -6,7 +6,7 @@ import {
   UpdateBrandProfileRequestSchema,
 } from '@copyzen/shared/schemas/index.js';
 import { generateBrandProfile } from '@copyzen/shared/services/brand-profile-service';
-import { ApiError } from '../middleware/error-handler.js.js';
+import { ApiError } from '../middleware/error-handler.js';
 
 const router = Router();
 
