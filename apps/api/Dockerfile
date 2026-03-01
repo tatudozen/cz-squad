@@ -24,8 +24,10 @@ WORKDIR /app
 # Install dumb-init for proper signal handling
 RUN apk add --no-cache dumb-init
 
-# Copy package files
+# Copy package files and workspace structure
 COPY package*.json ./
+COPY apps/api/package*.json ./apps/api/
+COPY packages/shared/package*.json ./packages/shared/
 
 # Copy built artifacts
 COPY --from=builder /app/apps/api/dist/apps/api/src ./dist
