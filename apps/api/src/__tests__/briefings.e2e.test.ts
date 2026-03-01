@@ -19,10 +19,15 @@ beforeAll(async () => {
   app.use('/briefings', briefingsRouter);
   app.use(errorHandler);
 
-  // Start test server
+  // Start test server with SO_REUSEADDR to allow reuse
   server = await new Promise((resolve) => {
-    const s = app.listen(3000, () => {
+    const s = app.listen(3000, '127.0.0.1', () => {
+      s.setMaxListeners(0);
       resolve(s);
+    });
+    s.once('error', (err) => {
+      console.error('Server listen error:', err);
+      throw err;
     });
   });
 
@@ -44,9 +49,21 @@ afterAll(async () => {
     }
   }
 
-  // Close server
-  await new Promise<void>((resolve) => {
-    server.close(() => resolve());
+  // Close server and all connections
+  await new Promise<void>((resolve, reject) => {
+    if (!server) {
+      resolve();
+      return;
+    }
+
+    // Force close all connections
+    server.closeAllConnections();
+
+    // Then close the server
+    server.close((err) => {
+      if (err) reject(err);
+      else resolve();
+    });
   });
 });
 

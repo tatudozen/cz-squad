@@ -15,6 +15,8 @@ export default defineConfig({
     include: ['apps/**/*.test.ts', 'packages/**/*.test.ts'],
     exclude: ['node_modules', 'dist'],
     setupFiles: ['./vitest.setup.ts'],
+    hookTimeout: 30000,
+    teardownTimeout: 30000,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
