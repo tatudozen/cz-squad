@@ -1,19 +1,19 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { config } from './utils/config'
-import { logger } from './utils/logger'
-import clientsRouter from './routes/clients'
-import briefingsRouter from './routes/briefings'
-import brandProfilesRouter from './routes/brand-profiles'
-import copyRouter from './routes/copy'
-import contentRouter from './routes/content'
-import carouselRouter from './routes/carousel'
-import staticPostRouter from './routes/static-post'
-import designBriefRouter from './routes/design-brief'
-import funwheelRouter from './routes/funwheel'
-import salesPageRouter from './routes/sales-page'
-import projectsRouter from './routes/projects'
-import deliverablesRouter from './routes/deliverables'
-import { errorHandler } from './middleware/error-handler'
+import { config } from "./utils/config.js"
+import { logger } from "./utils/logger.js"
+import clientsRouter from "./routes/clients.js"
+import briefingsRouter from "./routes/briefings.js"
+import brandProfilesRouter from "./routes/brand-profiles.js"
+import copyRouter from "./routes/copy.js"
+import contentRouter from "./routes/content.js"
+import carouselRouter from "./routes/carousel.js"
+import staticPostRouter from "./routes/static-post.js"
+import designBriefRouter from "./routes/design-brief.js"
+import funwheelRouter from "./routes/funwheel.js"
+import salesPageRouter from "./routes/sales-page.js"
+import projectsRouter from "./routes/projects.js"
+import deliverablesRouter from "./routes/deliverables.js"
+import { errorHandler } from "./middleware/error-handler.js"
 
 const app = express();
 

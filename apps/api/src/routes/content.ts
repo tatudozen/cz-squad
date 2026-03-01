@@ -7,10 +7,10 @@
 
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { createContentPlan } from '../services/content/index';
-import contentPlanRepository from '../repositories/ContentPlanRepository';
+import { createContentPlan } from "../services/content/index.js";
+import contentPlanRepository from "../repositories/ContentPlanRepository.js";
 import { BriefingRepository, BrandProfileRepository } from '@shared/repositories';
-import { logger } from '../utils/logger';
+import { logger } from "../utils/logger.js";
 
 const router = Router();
 

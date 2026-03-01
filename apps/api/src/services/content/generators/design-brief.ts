@@ -7,10 +7,10 @@
 
 import { randomUUID } from 'crypto';
 import { BrandProfile } from '@shared/types';
-import { Carousel } from './carousel';
-import { StaticPost } from './static-post';
-import { llmAdapter } from '../../../utils/llm-adapter';
-import { logger } from '../../../utils/logger';
+import { Carousel } from "./carousel.js";
+import { StaticPost } from "./static-post.js";
+import { llmAdapter } from "../../../utils/llm-adapter.js";
+import { logger } from "../../../utils/logger.js";
 
 export interface ColorSpec {
   name: string;

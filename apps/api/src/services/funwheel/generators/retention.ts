@@ -6,7 +6,7 @@
  */
 
 import { randomUUID } from 'crypto';
-import { logger } from '../../../utils/logger';
+import { logger } from "../../../utils/logger.js";
 
 export interface LeadData {
   presentation_id: string;

@@ -12,8 +12,8 @@ import {
   ContentPlanOptions,
   ContentPlanPost,
 } from '@api/types/content';
-import { llmAdapter } from '../../utils/llm-adapter'
-import { logger } from '../../utils/logger'
+import { llmAdapter } from "../../utils/llm-adapter.js"
+import { logger } from "../../utils/logger.js"
 
 /**
  * Default options for content plan generation
