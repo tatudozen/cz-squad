@@ -9,6 +9,12 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy to Production
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    env:
+      DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -39,6 +45,20 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          env_file: /dev/null
+          envs: DOCKER_REGISTRY,ANTHROPIC_API_KEY,SUPABASE_URL,SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY
           script: |
             docker pull ${{ secrets.DOCKER_REGISTRY }}/copyzen-api:latest
+            cat > /tmp/.env << EOF
+            NODE_ENV=production
+            ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+            SUPABASE_URL=${SUPABASE_URL}
+            SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+            SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+            EOF
+            export DOCKER_REGISTRY="${DOCKER_REGISTRY}"
+            export ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY}"
+            export SUPABASE_URL="${SUPABASE_URL}"
+            export SUPABASE_ANON_KEY="${SUPABASE_ANON_KEY}"
+            export SUPABASE_SERVICE_ROLE_KEY="${SUPABASE_SERVICE_ROLE_KEY}"
             docker stack deploy -c docker-compose.prod.yml copyzen
