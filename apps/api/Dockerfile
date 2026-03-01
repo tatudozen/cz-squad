@@ -7,6 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY tsconfig.json ./
 COPY apps/api ./apps/api
+COPY apps/pages ./apps/pages
 COPY packages/shared ./packages/shared
 
 # Install dependencies
