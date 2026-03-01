@@ -10,6 +10,8 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     name: Lint
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.AZ_CZ_SQUAD }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,6 +24,8 @@ jobs:
   typecheck:
     runs-on: ubuntu-latest
     name: Type Check
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.AZ_CZ_SQUAD }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -34,6 +38,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     name: Test
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.AZ_CZ_SQUAD }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
     services:
       postgres:
         image: postgres:15-alpine
@@ -61,6 +70,11 @@ jobs:
     runs-on: ubuntu-latest
     name: Build
     needs: [lint, typecheck, test]
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.AZ_CZ_SQUAD }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
