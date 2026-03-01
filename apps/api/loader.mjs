@@ -20,13 +20,13 @@ export async function resolve(specifier, context, nextResolve) {
     const fullPath = modulePath.endsWith('.js') ? nodeModulesPath : `${nodeModulesPath}/index.js`;
     const fileUrl = pathToFileURL(fullPath).href;
 
-    return { url: fileUrl };
+    return { url: fileUrl, shortCircuit: true };
   }
 
   // Handle @copyzen/shared import (main export)
   if (specifier === '@copyzen/shared') {
     const mainPath = resolvePath(process.cwd(), 'node_modules', '@copyzen', 'shared', 'dist', 'index.js');
-    return { url: pathToFileURL(mainPath).href };
+    return { url: pathToFileURL(mainPath).href, shortCircuit: true };
   }
 
   // For all other imports, use default resolution
