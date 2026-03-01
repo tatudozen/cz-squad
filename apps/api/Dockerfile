@@ -13,8 +13,7 @@ COPY packages/shared ./packages/shared
 RUN npm ci
 
 # Build
-RUN npm run build --workspace=apps/api
-RUN npm run build --workspace=packages/shared
+RUN npm run build
 
 # Runtime
 FROM node:20-alpine
