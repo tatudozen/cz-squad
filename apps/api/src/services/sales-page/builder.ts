@@ -5,7 +5,7 @@
 
 import { randomUUID } from 'crypto';
 import type { SalesPageContent } from '../../types/sales-page.js';
-import type { BrandProfile } from '@copyzen/shared/supabase.js';
+import type { BrandProfile } from '@copyzen/shared/supabase';
 
 export interface SalesPageBuildMetadata {
   word_count: number;

@@ -4,7 +4,7 @@ import express from 'express';
 import { Server } from 'http';
 import copyRouter from '../routes/copy.js';
 import { errorHandler } from '../middleware/error-handler.js';
-import { ClientRepository, BriefingRepository, BrandProfileRepository } from '@copyzen/shared/repositories/index.js';
+import { ClientRepository, BriefingRepository, BrandProfileRepository } from '@copyzen/shared/repositories/index';
 
 let app: express.Application;
 let server: Server;

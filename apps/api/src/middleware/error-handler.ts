@@ -1,7 +1,7 @@
 // Global error handler middleware
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
-import { SupabaseError } from '@copyzen/shared/supabase.js';
+import { SupabaseError } from '@copyzen/shared/supabase';
 
 /**
  * Standard error response format

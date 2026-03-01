@@ -7,7 +7,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { BrandProfileRepository, BriefingRepository } from '@copyzen/shared/repositories/index.js';
+import { BrandProfileRepository, BriefingRepository } from '@copyzen/shared/repositories/index';
 import {
   orchestrateProject,
   retryPipeline,

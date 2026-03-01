@@ -1,11 +1,11 @@
 // Brand Profile CRUD endpoints
 import { Router, Request, Response, NextFunction } from 'express';
-import { BrandProfileRepository, BriefingRepository } from '@copyzen/shared/repositories/index.js';
+import { BrandProfileRepository, BriefingRepository } from '@copyzen/shared/repositories/index';
 import {
   CreateBrandProfileRequestSchema,
   UpdateBrandProfileRequestSchema,
-} from '@copyzen/shared/schemas/index.js';
-import { generateBrandProfile } from '@copyzen/shared/services/brand-profile-service.js';
+} from '@copyzen/shared/schemas/index';
+import { generateBrandProfile } from '@copyzen/shared/services/brand-profile-service';
 import { ApiError } from '../middleware/error-handler.js';
 
 const router = Router();
