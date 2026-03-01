@@ -12,9 +12,10 @@ let supabaseAdmin: any;
 let supabaseConfig: any = null;
 
 if (useLocalMock) {
-  // Use mock client for development (sync import)
-  const mockClient = require('./supabase-mock.js');
-  supabaseAdmin = mockClient.supabaseAdmin;
+  // Use mock client for development
+  import('./supabase-mock.js').then((mockClient) => {
+    supabaseAdmin = mockClient.supabaseAdmin;
+  });
 } else {
   // Environment validation
   const supabaseEnv = z.object({

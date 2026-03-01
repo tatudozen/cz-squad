@@ -1,1 +1,1 @@
-/// <reference path="../.astro/types.d.ts" />
+import type { AstroGlobal } from 'astro';
