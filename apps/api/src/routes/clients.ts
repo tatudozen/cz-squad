@@ -1,7 +1,7 @@
 // Client CRUD endpoints
 import { Router, Request, Response, NextFunction } from 'express';
-import { ClientRepository } from '@shared/repositories/index.js';
-import { CreateClientRequestSchema, UpdateClientRequestSchema } from '@shared/schemas/index.js';
+import { ClientRepository } from '@copyzen/shared/repositories/index.js';
+import { CreateClientRequestSchema, UpdateClientRequestSchema } from '@copyzen/shared/schemas/index.js';
 import { ApiError } from '../middleware/error-handler.js';
 
 const router = Router();

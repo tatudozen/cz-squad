@@ -1,8 +1,8 @@
 // Copy Generation endpoints
 import { Router, Request, Response, NextFunction } from 'express';
-import { BrandProfileRepository, BriefingRepository } from '@shared/repositories/index.js';
-import { GenerateCopyRequestSchema } from '@shared/schemas/index.js';
-import { generateCopy } from '@shared/services/copywriting-service.js';
+import { BrandProfileRepository, BriefingRepository } from '@copyzen/shared/repositories/index.js';
+import { GenerateCopyRequestSchema } from '@copyzen/shared/schemas/index.js';
+import { generateCopy } from '@copyzen/shared/services/copywriting-service.js';
 import { ApiError } from '../middleware/error-handler.js';
 
 const router = Router();

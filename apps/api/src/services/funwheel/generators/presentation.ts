@@ -3,7 +3,7 @@
  * Generates transformation narrative landing pages
  */
 
-import { BrandProfile, Briefing } from '@shared/supabase.js';
+import { BrandProfile, Briefing } from '@copyzen/shared/supabase.js';
 import type {
   Presentation,
   HeroSection,

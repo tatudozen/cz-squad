@@ -4,7 +4,7 @@
  */
 
 import { randomUUID } from 'crypto';
-import type { Briefing, BrandProfile } from '@shared/supabase.js';
+import type { Briefing, BrandProfile } from '@copyzen/shared/supabase.js';
 import type {
   SalesPageContent,
   Section,

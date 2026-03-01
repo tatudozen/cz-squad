@@ -9,7 +9,7 @@ import {
   createQualificationResult,
   generateTierCTA,
 } from '../generators/qualification.js';
-import { BrandProfile, Briefing } from '@shared/supabase.js';
+import { BrandProfile, Briefing } from '@copyzen/shared/supabase.js';
 
 describe('Qualification Service (FunWheel Etapa T)', () => {
   let testBriefing: Briefing;

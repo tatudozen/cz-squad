@@ -7,7 +7,7 @@
 
 import { randomUUID } from 'crypto';
 import { ContentPlanPost, ContentMode } from '@api/types/content';
-import { BrandProfile } from '@shared/types';
+import { BrandProfile } from '@copyzen/shared/types';
 import { llmAdapter } from "../../../utils/llm-adapter.js";
 import { logger } from "../../../utils/logger.js";
 

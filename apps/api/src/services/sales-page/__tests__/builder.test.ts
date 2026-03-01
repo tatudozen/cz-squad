@@ -5,7 +5,7 @@
 import { describe, it, expect } from 'vitest';
 import { buildSalesPage, deploySalesPageToVPS } from '../builder.js';
 import type { SalesPageContent } from '../../../types/sales-page.js';
-import type { BrandProfile } from '@shared/supabase.js';
+import type { BrandProfile } from '@copyzen/shared/supabase.js';
 
 const mockBrandProfile: BrandProfile = {
   id: 'brand-123',

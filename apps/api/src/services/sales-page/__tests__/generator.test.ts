@@ -15,7 +15,7 @@ import {
   generateFAQSection,
   generateFinalCTASection,
 } from '../generator.js';
-import type { Briefing, BrandProfile } from '@shared/supabase.js';
+import type { Briefing, BrandProfile } from '@copyzen/shared/supabase.js';
 import type { OfferDetails } from '../../../types/sales-page.js';
 
 const mockBriefing: Briefing = {

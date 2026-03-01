@@ -6,7 +6,7 @@
  */
 
 import { randomUUID } from 'crypto';
-import { Briefing, BrandProfile } from '@shared/types';
+import { Briefing, BrandProfile } from '@copyzen/shared/types';
 import {
   ContentPlan,
   ContentPlanOptions,

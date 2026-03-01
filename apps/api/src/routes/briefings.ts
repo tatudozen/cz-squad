@@ -1,11 +1,11 @@
 // Briefing CRUD endpoints
 import { Router, Request, Response, NextFunction } from 'express';
-import { BriefingRepository } from '@shared/repositories/index.js';
+import { BriefingRepository } from '@copyzen/shared/repositories/index.js';
 import {
   CreateBriefingRequestSchema,
   UpdateBriefingRequestSchema,
   ListBriefingsQuerySchema,
-} from '@shared/schemas/index.js';
+} from '@copyzen/shared/schemas/index.js';
 import { ApiError } from '../middleware/error-handler.js';
 
 const router = Router();

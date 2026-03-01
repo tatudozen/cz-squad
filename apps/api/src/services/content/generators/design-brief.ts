@@ -6,7 +6,7 @@
  */
 
 import { randomUUID } from 'crypto';
-import { BrandProfile } from '@shared/types';
+import { BrandProfile } from '@copyzen/shared/types';
 import { Carousel } from "./carousel.js";
 import { StaticPost } from "./static-post.js";
 import { llmAdapter } from "../../../utils/llm-adapter.js";

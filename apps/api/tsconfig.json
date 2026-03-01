@@ -18,7 +18,7 @@
     "isolatedModules": true,
     "baseUrl": "../../",
     "paths": {
-      "@shared/*": ["packages/shared/src/*"],
+      "@copyzen/shared/*": ["packages/shared/src/*"],
       "@api/*": ["apps/api/src/*"]
     },
     "outDir": "dist"

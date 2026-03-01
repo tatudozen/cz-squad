@@ -3,7 +3,7 @@
  * Generates qualification quizzes and scores lead engagement
  */
 
-import { BrandProfile, Briefing } from '@shared/supabase.js';
+import { BrandProfile, Briefing } from '@copyzen/shared/supabase.js';
 import type {
   QualificationQuiz,
   QualificationResult,

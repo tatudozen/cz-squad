@@ -4,7 +4,7 @@
 
 import { describe, it, expect, beforeAll } from 'vitest';
 import { generatePresentation } from '../generators/presentation.js';
-import { BrandProfile, Briefing } from '@shared/supabase.js';
+import { BrandProfile, Briefing } from '@copyzen/shared/supabase.js';
 
 describe('Presentation Service (FunWheel Etapa A)', () => {
   let testBriefing: Briefing;

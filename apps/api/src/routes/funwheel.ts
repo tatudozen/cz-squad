@@ -6,7 +6,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { createClient } from '@supabase/supabase-js';
-import { BrandProfileRepository, BriefingRepository } from '@shared/repositories/index.js';
+import { BrandProfileRepository, BriefingRepository } from '@copyzen/shared/repositories/index.js';
 import { generatePresentation } from '../services/funwheel/generators/presentation.js';
 import {
   generateQualificationQuiz,

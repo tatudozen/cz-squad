@@ -5,7 +5,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { BrandProfileRepository, BriefingRepository } from '@shared/repositories/index.js';
+import { BrandProfileRepository, BriefingRepository } from '@copyzen/shared/repositories/index.js';
 import { generateSalesPageContent } from '../services/sales-page/generator.js';
 import { buildSalesPage } from '../services/sales-page/builder.js';
 import { ApiError } from '../middleware/error-handler.js';
