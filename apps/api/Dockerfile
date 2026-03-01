@@ -29,12 +29,11 @@ COPY package*.json ./
 COPY apps/api/package*.json ./apps/api/
 COPY packages/shared/package*.json ./packages/shared/
 
+# Copy node_modules from builder (includes resolved dependencies and workspace symlinks)
+COPY --from=builder /app/node_modules ./node_modules
+
 # Copy built artifacts
 COPY --from=builder /app/apps/api/dist/apps/api/src ./dist
-COPY --from=builder /app/apps/api/dist/packages/shared/src ./node_modules/@copyzen/shared
-
-# Install production dependencies only
-RUN npm ci --omit=dev
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
