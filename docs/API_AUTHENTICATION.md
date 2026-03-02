@@ -45,7 +45,7 @@ Todos esses endpoints requerem autenticação:
 
 ```
 1. Adicione um nó "HTTP Request"
-2. URL: https://funwheel.imktools.com/briefings
+2. URL: https://fw.alquimiazen.com.br/briefings
 3. Method: POST
 4. Headers:
    - Key: X-API-Key
@@ -56,7 +56,7 @@ Todos esses endpoints requerem autenticação:
 ### 2. Exemplo cURL
 
 ```bash
-curl -X POST https://funwheel.imktools.com/briefings \
+curl -X POST https://fw.alquimiazen.com.br/briefings \
   -H "X-API-Key: seu-api-key-secreto" \
   -H "Content-Type: application/json" \
   -d '{
@@ -73,7 +73,7 @@ curl -X POST https://funwheel.imktools.com/briefings \
 
 ```javascript
 const apiKey = "seu-api-key-secreto";
-const response = await fetch('https://funwheel.imktools.com/briefings', {
+const response = await fetch('https://fw.alquimiazen.com.br/briefings', {
   method: 'POST',
   headers: {
     'X-API-Key': apiKey,
@@ -188,10 +188,10 @@ Exemplo log:
 
 ```bash
 # ❌ Errado
-curl https://funwheel.imktools.com/briefings
+curl https://fw.alquimiazen.com.br/briefings
 
 # ✅ Correto
-curl -H "X-API-Key: seu-api-key" https://funwheel.imktools.com/briefings
+curl -H "X-API-Key: seu-api-key" https://fw.alquimiazen.com.br/briefings
 ```
 
 ### "Invalid API key"
