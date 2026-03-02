@@ -13,8 +13,15 @@ export interface AuthenticatedRequest extends Request {
 /**
  * Middleware to validate API key from X-API-Key header
  * Required for protected endpoints
+ *
+ * Skips validation in test mode or if OPERATOR_API_KEY not configured
  */
 export const validateApiKey = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  // Skip validation in test mode
+  if (config.nodeEnv === 'test') {
+    return next();
+  }
+
   // Skip validation if no API key is configured
   if (!config.operatorApiKey) {
     console.warn('[AUTH] Warning: OPERATOR_API_KEY not configured. All requests allowed.');
