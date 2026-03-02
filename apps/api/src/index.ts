@@ -14,6 +14,7 @@ import salesPageRouter from "./routes/sales-page.js"
 import projectsRouter from "./routes/projects.js"
 import deliverablesRouter from "./routes/deliverables.js"
 import { errorHandler } from "./middleware/error-handler.js"
+import { validateApiKey } from "./middleware/auth.js"
 
 const app = express();
 
@@ -47,41 +48,42 @@ app.get('/metrics', (req: Request, res: Response) => {
   });
 });
 
+// Protected routes (require API key)
 // Clients routes (Story 1.3)
-app.use('/clients', clientsRouter);
+app.use('/clients', validateApiKey, clientsRouter);
 
 // Briefings routes (Story 1.3)
-app.use('/briefings', briefingsRouter);
+app.use('/briefings', validateApiKey, briefingsRouter);
 
 // Brand profiles routes (Story 1.4)
-app.use('/brand-profiles', brandProfilesRouter);
+app.use('/brand-profiles', validateApiKey, brandProfilesRouter);
 
 // Copy generation routes (Story 1.5)
-app.use('/copy', copyRouter);
+app.use('/copy', validateApiKey, copyRouter);
 
 // Content generation routes (Story 2.1)
-app.use('/content', contentRouter);
+app.use('/content', validateApiKey, contentRouter);
 
 // Carousel generation routes (Story 2.2)
-app.use('/carousel', carouselRouter);
+app.use('/carousel', validateApiKey, carouselRouter);
 
 // Static post generation routes (Story 2.3)
-app.use('/static-post', staticPostRouter);
+app.use('/static-post', validateApiKey, staticPostRouter);
 
 // Design brief generation routes (Story 2.4)
-app.use('/design-brief', designBriefRouter);
+app.use('/design-brief', validateApiKey, designBriefRouter);
 
 // FunWheel routes (Story 3.2+)
-app.use('/funwheel', funwheelRouter);
+app.use('/funwheel', validateApiKey, funwheelRouter);
 
 // Sales page routes (Story 4.1+)
-app.use('/sales-page', salesPageRouter);
+app.use('/sales-page', validateApiKey, salesPageRouter);
 
 // Project pipeline routes (Story 4.3)
-app.use('/projects', projectsRouter);
+app.use('/projects', validateApiKey, projectsRouter);
 
 // Deliverable approval routes (Story 4.4)
-app.use('/deliverables', deliverablesRouter);
+app.use('/deliverables', validateApiKey, deliverablesRouter);
 
 app.post('/content/generate-package', (req: Request, res: Response) => {
   res.status(501).json({ error: 'Not implemented' });
