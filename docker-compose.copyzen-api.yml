@@ -1,0 +1,68 @@
+version: "3.7"
+
+services:
+
+## --------------------------- COPYZEN API --------------------------- ##
+
+  copyzen_api:
+    image: docker.io/tatudozen/copyzen-api:latest
+    container_name: copyzen-api
+
+    networks:
+      - AZ_Net ## Nome da rede interna
+
+    environment:
+      ## 🌐 Ambiente de Execução
+      - NODE_ENV=production
+      - PORT=3000
+
+      ## 🔐 Autenticação
+      - OPERATOR_API_KEY=ca5ec6b0527e046297815bb77d9a4de8875c7ffee00c2c5ddc82b3be368767cd
+
+      ## 🧠 LLM (Anthropic/Claude)
+      - ANTHROPIC_API_KEY=sk-ant-d01_w4LW3lQTLyDlO2qKmXNVfxqMnAkSsqkEeQ-xDkr8hJZ5bvDfQGxgSx5u7oESaKGCCOCpT6ZgHczk4a5k7w_wj4TQwA
+
+      ## 🗄️ Banco de Dados (Supabase/PostgreSQL)
+      - SUPABASE_URL=https://vnjqrpsfemhxhcgyhued.supabase.co
+      - SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZuanFycHNmZW1oeGhjY3lodWVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMjc0ODYsImV4cCI6MjA4NzYwMzQ4Nn0.MjGDtd1IFI4zyd4EARVRBB8dMHAjws3Rp1kzh8pjmsI
+      - SUPABASE_SERVICE_ROLE_KEY=YOUR_SECRET_KEY_HERE
+
+      ## 🕒 Fuso Horário
+      - TZ=America/Sao_Paulo
+
+    ports:
+      - "3000:3000"
+
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.copyzen_api.rule=Host(`fw.alquimiazen.com.br`)
+        - traefik.http.routers.copyzen_api.entrypoints=websecure
+        - traefik.http.routers.copyzen_api.priority=1
+        - traefik.http.routers.copyzen_api.tls.certresolver=letsencryptresolver
+        - traefik.http.routers.copyzen_api.service=copyzen_api
+        - traefik.http.services.copyzen_api.loadbalancer.server.port=3000
+        - traefik.http.services.copyzen_api.loadbalancer.passHostHeader=true
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=copyzen-api"
+
+## --------------------------- COPYZEN API --------------------------- ##
+
+networks:
+  AZ_Net: ## Nome da rede interna
+    external: true
+    name: AZ_Net
