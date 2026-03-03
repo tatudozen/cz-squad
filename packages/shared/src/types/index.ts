@@ -23,6 +23,7 @@ export interface Briefing {
   voice_tone: string;
   objectives: string[];
   differentiators: string;
+  monthly_budget?: number;
   existing_colors?: string[];
   logo_url?: string;
   created_at: Date;
@@ -34,13 +35,15 @@ export interface BrandProfile {
   id: string;
   client_id: string;
   briefing_id: string;
+  primary_color?: string;
+  secondary_color?: string;
   color_palette: {
     primary: string;
     secondary: string;
     accent: string;
     neutral: string;
   };
-  voice_guidelines: {
+  voice_guidelines: string | {
     tone: string;
     keywords_to_use: string[];
     keywords_to_avoid: string[];
@@ -51,6 +54,7 @@ export interface BrandProfile {
     heading: string;
     body: string;
   };
+  brand_values?: string;
   created_at: Date;
 }
 
@@ -126,5 +130,32 @@ export interface ApiError {
     details?: Record<string, any>;
     timestamp: string;
     requestId: string;
+  };
+}
+
+// Content Planning types
+export interface ContentPost {
+  type: 'carousel' | 'image';
+  mode: 'inception' | 'atração-fatal';
+  theme: string;
+  targetPlatform: 'instagram' | 'linkedin';
+  publishOrder: number;
+  creativeBrief: string;
+  funwheelCTA: string | null;
+}
+
+export interface ContentPlan {
+  id?: string;
+  briefing_id: string;
+  brand_profile_id: string;
+  total_posts: number;
+  inception_count: number;
+  atrao_fatal_count: number;
+  posts: ContentPost[];
+  created_at: Date;
+  updated_at?: Date;
+  metadata?: {
+    inceptionRatio: number;
+    formats: 'carousel' | 'image' | 'mix';
   };
 }
