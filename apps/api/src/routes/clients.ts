@@ -61,24 +61,6 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 });
 
 /**
- * GET /clients
- * List all clients
- */
-router.get('/', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const clients = await ClientRepository.getAll();
-
-    res.json({
-      data: clients,
-      count: clients.length,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
  * PATCH /clients/:id
  * Update a client
  */

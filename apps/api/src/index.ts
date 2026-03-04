@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { config } from "./utils/config.js"
 import { logger } from "./utils/logger.js"
+import { ClientRepository } from "@copyzen/shared/repositories/index.js"
 import clientsRouter from "./routes/clients.js"
 import briefingsRouter from "./routes/briefings.js"
 import brandProfilesRouter from "./routes/brand-profiles.js"
@@ -48,25 +49,45 @@ app.get('/metrics', (req: Request, res: Response) => {
   });
 });
 
-// Middleware to validate API key only for non-POST requests
-const validateApiKeyExceptPost = (req: Request, res: Response, next: NextFunction) => {
-  if (req.method === 'POST') {
-    return next(); // Skip validation for POST (public form submission)
+// Public endpoints - no authentication required
+// List all clients (public for form selection)
+app.get('/api/clients-public', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const clients = await ClientRepository.getAll();
+    res.json({
+      data: clients,
+      count: clients.length,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    next(error);
   }
-  return validateApiKey(req, res, next);
-};
+});
 
 // Protected routes (require API key)
 // Clients routes (Story 1.3)
-// GET /clients is public (list for form selection)
-// POST/PATCH/DELETE require API key
-app.get('/clients', clientsRouter);
-app.use('/clients', validateApiKey, clientsRouter);
+// POST /clients (create), GET /:id, PATCH/DELETE require API key
+// GET / is handled above as public endpoint
+const authenticatedClientsMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  // Allow public GET /clients (handled above)
+  if (req.method === 'GET' && req.path === '/clients') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+  // Require auth for POST, PATCH, DELETE
+  return validateApiKey(req, res, next);
+};
+app.use('/clients', authenticatedClientsMiddleware, clientsRouter);
 
 // Briefings routes (Story 1.3)
 // POST /briefings is public (form submission) for story 1.2.5
 // GET/PATCH/DELETE require API key
-app.use('/briefings', validateApiKeyExceptPost, briefingsRouter);
+const briefingsMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  if (req.method === 'POST') {
+    return next(); // Skip validation for POST
+  }
+  return validateApiKey(req, res, next);
+};
+app.use('/briefings', briefingsMiddleware, briefingsRouter);
 
 // Brand profiles routes (Story 1.4)
 app.use('/brand-profiles', validateApiKey, brandProfilesRouter);

@@ -308,7 +308,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || 'https://fw.alquimiazen.c
       // Load clients from API
       async function loadClients() {
         try {
-          const response = await fetch(`${API_BASE_URL}/clients`);
+          const response = await fetch(`${API_BASE_URL}/api/clients-public`);
           if (response.ok) {
             const data = await response.json();
             allClients = data.data || [];
