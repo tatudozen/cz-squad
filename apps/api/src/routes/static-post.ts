@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { z } from "zod";
+import { ContentPost } from "@copyzen/shared";
 import { StaticPostCopyGeneratorService } from "../services/generators/static-post.js";
 import { BrandProfileRepository } from "../repositories/brand-profile.repository.js";
 
@@ -39,7 +40,7 @@ router.post("/", async (req: Request, res: Response) => {
     }
 
     const post = await staticPostService.generateStaticPost(
-      validatedData.content_post,
+      validatedData.content_post as ContentPost,
       brandProfile,
       brandProfile.client_id,
       validatedData.platform,

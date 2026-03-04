@@ -56,6 +56,7 @@ export interface BrandProfile {
   };
   brand_values?: string;
   created_at: Date;
+  updated_at?: Date;
 }
 
 export interface Project {

@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { z } from "zod";
+import { ContentPost } from "@copyzen/shared";
 import { CarouselCopyGeneratorService } from "../services/generators/carousel.js";
 import { BrandProfileRepository } from "../repositories/brand-profile.repository.js";
 
@@ -45,7 +46,7 @@ router.post("/", async (req: Request, res: Response) => {
 
     // Generate carousel
     const carousel = await carouselService.generateCarousel(
-      validatedData.content_post,
+      validatedData.content_post as ContentPost,
       brandProfile,
       brandProfile.client_id,
       validatedData.options

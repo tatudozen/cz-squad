@@ -2,7 +2,7 @@ import { Anthropic } from "@anthropic-ai/sdk";
 import { BrandProfile } from "@copyzen/shared";
 import { DesignBrief, DesignBriefOptions } from "../../types/design-brief.js";
 
-interface Carousel {
+export interface Carousel {
   plan_item_id: string;
   brand_profile_id: string;
   mode: 'inception' | 'atração-fatal';
@@ -19,7 +19,7 @@ interface Carousel {
   created_at?: Date;
 }
 
-interface StaticPost {
+export interface StaticPost {
   plan_item_id: string;
   brand_profile_id: string;
   client_id?: string;
@@ -44,11 +44,8 @@ export class DesignBriefGeneratorService {
     carousel: Carousel,
     brandProfile: BrandProfile,
     clientId: string,
-    options: DesignBriefOptions = {}
+    _options: DesignBriefOptions = {}
   ): Promise<DesignBrief> {
-    const detailed = options.detailed !== false;
-    const includeResponsive = options.include_responsive !== false;
-
     const colorPalette = brandProfile.color_palette;
     const prompt = `You are a visual design strategist specializing in Instagram carousel design.
 
@@ -129,7 +126,7 @@ Return ONLY the JSON object.`;
     post: StaticPost,
     brandProfile: BrandProfile,
     clientId: string,
-    options: DesignBriefOptions = {}
+    _options: DesignBriefOptions = {}
   ): Promise<DesignBrief> {
     const colorPalette = brandProfile.color_palette;
     const prompt = `You are a visual design strategist for ${post.platform === 'instagram' ? 'Instagram' : 'LinkedIn'} posts.

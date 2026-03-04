@@ -92,12 +92,12 @@ export interface Briefing {
   logo_url?: string;
   call_to_action?: string;
   visual_references?: string;
+  monthly_budget?: number;
   status: string;
   created_at: string;
   updated_at: string;
   approved_at?: string;
   approved_by?: string;
-  monthly_budget?: number;
 }
 
 export interface BrandProfile {
@@ -147,9 +147,13 @@ export const BriefingInputSchema = z.object({
   main_problem: z.string().optional(),
   desired_transformation: z.string().optional(),
   voice_tone: z.string().max(100).optional(),
+  objectives: z.array(z.string()).optional(),
   differentiators: z.string().optional(),
   call_to_action: z.string().optional(),
   visual_references: z.string().optional(),
+  existing_colors: z.array(z.string()).optional(),
+  logo_url: z.string().url().optional().or(z.literal('')).optional(),
+  monthly_budget: z.number().positive().optional(),
 });
 
 export type BriefingInput = z.infer<typeof BriefingInputSchema>;

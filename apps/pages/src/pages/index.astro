@@ -1,9 +1,11 @@
 ---
 import BriefingCaptureForm from '../components/BriefingCaptureForm.astro';
 
-// Default client ID for testing (would be dynamic in production)
+// Get client ID from environment or use default (Clínica Silva test account)
+// In production, this would be set via PUBLIC_CLIENT_ID env variable or determined by user session
 const CLIENT_ID = import.meta.env.PUBLIC_CLIENT_ID || '32b77973-9965-497d-a7a4-c12af801d79b';
 const API_KEY = import.meta.env.PUBLIC_API_KEY;
+const API_BASE_URL = import.meta.env.PUBLIC_API_URL || 'https://fw.alquimiazen.com.br';
 ---
 
 <!doctype html>
@@ -35,6 +37,29 @@ const API_KEY = import.meta.env.PUBLIC_API_KEY;
 
         <!-- Info Column -->
         <div class="space-y-8">
+          <!-- Client ID Configuration Card -->
+          <div class="bg-blue-50 rounded-lg shadow-lg p-6 border border-blue-200">
+            <h2 class="text-xl font-bold text-blue-900 mb-4">🔑 Configuração</h2>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-sm font-medium text-blue-900 mb-2">
+                  Client ID:
+                </label>
+                <input
+                  type="text"
+                  id="clientIdInput"
+                  value={CLIENT_ID}
+                  class="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm font-mono bg-white text-blue-900 focus:ring-2 focus:ring-blue-500"
+                  placeholder="Digite o UUID do cliente"
+                />
+              </div>
+              <p class="text-xs text-blue-800">
+                💡 Mude o Client ID se necessário. É salvo automaticamente.
+              </p>
+              <div id="clientIdStatus" class="text-sm text-blue-700"></div>
+            </div>
+          </div>
+
           <!-- Status Card -->
           <div class="bg-white rounded-lg shadow-lg p-6">
             <h2 class="text-xl font-bold text-gray-900 mb-4">📊 Status do Projeto</h2>
@@ -125,5 +150,71 @@ const API_KEY = import.meta.env.PUBLIC_API_KEY;
         <p class="text-sm mt-2">Versão 1.0 - Em desenvolvimento</p>
       </footer>
     </main>
+
+    <!-- Client ID Management Script -->
+    <script define:vars={{ CLIENT_ID, API_BASE_URL }}>
+      // Load client ID from query param, localStorage, or use default
+      function initializeClientId() {
+        const params = new URLSearchParams(window.location.search);
+        const queryClientId = params.get('client_id');
+        const storedClientId = localStorage.getItem('copyzen_client_id');
+
+        let activeClientId = queryClientId || storedClientId || CLIENT_ID;
+
+        // Update input field
+        const clientIdInput = document.getElementById('clientIdInput');
+        if (clientIdInput) {
+          clientIdInput.value = activeClientId;
+        }
+
+        // Update briefing form with current client ID
+        updateFormClientId(activeClientId);
+
+        // Store in localStorage for next visit
+        if (activeClientId) {
+          localStorage.setItem('copyzen_client_id', activeClientId);
+        }
+
+        // Show status
+        updateClientIdStatus(activeClientId);
+      }
+
+      function updateFormClientId(clientId) {
+        // Store in window for form to access
+        window.ACTIVE_CLIENT_ID = clientId;
+      }
+
+      function updateClientIdStatus(clientId) {
+        const status = document.getElementById('clientIdStatus');
+        if (status) {
+          const shortId = clientId.substring(0, 8) + '...';
+          status.textContent = `✅ Usando: ${shortId}`;
+        }
+      }
+
+      // Handle client ID changes
+      const clientIdInput = document.getElementById('clientIdInput');
+      if (clientIdInput) {
+        clientIdInput.addEventListener('change', (e) => {
+          const newClientId = e.target.value.trim();
+          if (newClientId) {
+            // Validate UUID format
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+            if (uuidRegex.test(newClientId)) {
+              localStorage.setItem('copyzen_client_id', newClientId);
+              updateFormClientId(newClientId);
+              updateClientIdStatus(newClientId);
+            } else {
+              alert('❌ ID de cliente inválido! Use um UUID válido.');
+              clientIdInput.value = window.ACTIVE_CLIENT_ID;
+            }
+          }
+        });
+      }
+
+      // Initialize on page load
+      document.addEventListener('DOMContentLoaded', initializeClientId);
+      initializeClientId();
+    </script>
   </body>
 </html>

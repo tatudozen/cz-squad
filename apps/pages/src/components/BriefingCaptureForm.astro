@@ -294,6 +294,9 @@ const { clientId, apiKey } = Astro.props;
     submitting.classList.remove('hidden');
 
     try {
+      // Use dynamic client ID from page if available, otherwise use prop
+      const activeClientId = window.ACTIVE_CLIENT_ID || clientId;
+
       const response = await fetch('/briefings', {
         method: 'POST',
         headers: {
@@ -301,7 +304,7 @@ const { clientId, apiKey } = Astro.props;
           'X-API-Key': apiKey || import.meta.env.PUBLIC_API_KEY || '',
         },
         body: JSON.stringify({
-          client_id: clientId,
+          client_id: activeClientId,
           ...formData,
         }),
       });

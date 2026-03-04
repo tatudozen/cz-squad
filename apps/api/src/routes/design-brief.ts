@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { z } from "zod";
 import { DesignBriefGeneratorService } from "../services/generators/design-brief.js";
 import { BrandProfileRepository } from "../repositories/brand-profile.repository.js";
+import type { Carousel, StaticPost } from "../services/generators/design-brief.js";
 
 const router = Router();
 const designBriefService = new DesignBriefGeneratorService();
@@ -57,7 +58,7 @@ router.post("/carousel", async (req: Request, res: Response) => {
     }
 
     const designBrief = await designBriefService.generateCarouselDesignBrief(
-      validatedData.carousel,
+      validatedData.carousel as Carousel,
       brandProfile,
       validatedData.client_id
     );
@@ -102,7 +103,7 @@ router.post("/static-post", async (req: Request, res: Response) => {
     }
 
     const designBrief = await designBriefService.generateStaticPostDesignBrief(
-      validatedData.post,
+      validatedData.post as StaticPost,
       brandProfile,
       validatedData.client_id
     );
