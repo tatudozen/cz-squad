@@ -1,252 +1,148 @@
-/**
- * Static Post Copy Generator
- * Generates platform-specific copy for Instagram and LinkedIn posts
- *
- * Story 2.3: Static Post Copy Generator (Epic 2)
- */
+import { Anthropic } from "@anthropic-ai/sdk";
+import { BrandProfile } from "@copyzen/shared";
+import { StaticPost, StaticPostOptions } from "../../types/static-post.js";
 
-import { randomUUID } from 'crypto';
-import { ContentPlanPost, ContentMode } from '@api/types/content';
-import { BrandProfile } from '@copyzen/shared/types';
-import { llmAdapter } from "../../../utils/llm-adapter.js";
-import { logger } from "../../../utils/logger.js";
-
-export type Platform = 'instagram' | 'linkedin';
-
-export interface StaticPost {
-  id: string;
-  plan_item_id: string;
-  brand_profile_id: string;
-  client_id: string;
-  mode: ContentMode;
-  platform: Platform;
-  main_text: string;
-  hashtags: string[];
-  design_note: string;
-  character_count: number;
-  hashtag_count: number;
-  created_at: string;
-  updated_at: string;
+interface ContentPost {
+  type: 'carousel' | 'image';
+  mode: 'inception' | 'atração-fatal';
+  theme: string;
+  targetPlatform: 'instagram' | 'linkedin';
+  publishOrder: number;
+  creativeBrief: string;
+  funwheelCTA: string | null;
 }
 
-export interface StaticPostOptions {
-  style?: 'educational' | 'promotional' | 'narrative';
-}
+export class StaticPostCopyGeneratorService {
+  private client: Anthropic;
 
-const PLATFORM_CONFIG = {
-  instagram: {
-    max_chars: 2200,
-    min_hashtags: 10,
-    max_hashtags: 30,
-    tone: 'engaging and visual',
-  },
-  linkedin: {
-    max_chars: 3000,
-    min_hashtags: 3,
-    max_hashtags: 5,
-    tone: 'professional and consultative',
-  },
-};
-
-const DEFAULT_OPTIONS: StaticPostOptions = {
-  style: 'narrative',
-};
-
-/**
- * Generate static post copy from a content plan item
- */
-export async function generateStaticPost(
-  planItem: ContentPlanPost,
-  brandProfile: BrandProfile,
-  clientId: string,
-  platform: Platform,
-  options?: Partial<StaticPostOptions>
-): Promise<StaticPost> {
-  // Merge with defaults
-  const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
-
-  // Validate platform
-  if (!['instagram', 'linkedin'].includes(platform)) {
-    throw new Error(`Invalid platform: ${platform}. Must be 'instagram' or 'linkedin'.`);
+  constructor() {
+    this.client = new Anthropic();
   }
 
-  logger.info('Static post generation started', {
-    plan_item_id: planItem.id,
-    mode: planItem.mode,
-    platform,
-  });
-
-  // Build LLM prompt
-  const prompt = buildStaticPostPrompt(planItem, brandProfile, platform, mergedOptions);
-
-  let mainText = '';
-  let hashtags: string[] = [];
-  let designNote = '';
-  let attempts = 0;
-  const maxRetries = 2;
-
-  while (attempts < maxRetries) {
-    attempts++;
-    try {
-      const llmResponse = await llmAdapter.generateCompletion(prompt);
-
-      // Parse LLM response
-      const jsonMatch = llmResponse.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('No JSON object found in LLM response');
-      }
-
-      const parsed = JSON.parse(jsonMatch[0]) as {
-        main_text: string;
-        hashtags: string[];
-        design_note: string;
-      };
-
-      mainText = parsed.main_text.substring(0, PLATFORM_CONFIG[platform].max_chars);
-      hashtags = parsed.hashtags || [];
-      designNote = parsed.design_note;
-
-      // Validate structure
-      if (!mainText || mainText.trim().length === 0) {
-        throw new Error('Invalid main_text from LLM');
-      }
-
-      // Validate character limit
-      if (mainText.length > PLATFORM_CONFIG[platform].max_chars) {
-        logger.warn('Main text exceeded character limit', {
-          platform,
-          limit: PLATFORM_CONFIG[platform].max_chars,
-          actual: mainText.length,
-        });
-        mainText = mainText.substring(0, PLATFORM_CONFIG[platform].max_chars);
-      }
-
-      // Validate hashtag count (allow ±2 tolerance)
-      const minHashtags = PLATFORM_CONFIG[platform].min_hashtags;
-      const maxHashtags = PLATFORM_CONFIG[platform].max_hashtags;
-      if (hashtags.length < minHashtags - 2 || hashtags.length > maxHashtags + 2) {
-        logger.warn('Hashtag count out of expected range', {
-          platform,
-          expected_min: minHashtags,
-          expected_max: maxHashtags,
-          actual: hashtags.length,
-        });
-      }
-
-      logger.info('Static post generated successfully', {
-        plan_item_id: planItem.id,
-        platform,
-        char_count: mainText.length,
-        hashtag_count: hashtags.length,
-        attempt: attempts,
-      });
-
-      break;
-    } catch (error) {
-      logger.error('Static post generation failed', {
-        error: String(error),
-        attempt: attempts,
-      });
-
-      if (attempts >= maxRetries) {
-        throw new Error(`Failed to generate static post after ${attempts} attempts`);
-      }
-    }
+  private getPlatformConstraints(platform: 'instagram' | 'linkedin') {
+    return {
+      instagram: {
+        maxChars: 2200,
+        minHashtags: 10,
+        maxHashtags: 30,
+        tone: "engaging, visual, storytelling",
+      },
+      linkedin: {
+        maxChars: 3000,
+        minHashtags: 3,
+        maxHashtags: 5,
+        tone: "professional, thoughtful, B2B-focused",
+      },
+    }[platform];
   }
 
-  // Create static post object
-  const post: StaticPost = {
-    id: randomUUID(),
-    plan_item_id: planItem.id!,
-    brand_profile_id: brandProfile.id,
-    client_id: clientId,
-    mode: planItem.mode,
-    platform,
-    main_text: mainText,
-    hashtags,
-    design_note: designNote,
-    character_count: mainText.length,
-    hashtag_count: hashtags.length,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
+  async generateStaticPost(
+    contentPost: ContentPost,
+    brandProfile: BrandProfile,
+    clientId: string,
+    platform: 'instagram' | 'linkedin',
+    options: StaticPostOptions = {}
+  ): Promise<StaticPost> {
+    const constraints = this.getPlatformConstraints(platform);
+    const style = options.style || "narrative";
+    const mode = contentPost.mode;
 
-  logger.info('Static post created successfully', {
-    post_id: post.id,
-    platform: post.platform,
-    char_count: post.character_count,
-    hashtag_count: post.hashtag_count,
-  });
+    const voiceGuidelines = typeof brandProfile.voice_guidelines === 'string'
+      ? brandProfile.voice_guidelines
+      : (brandProfile.voice_guidelines as any)?.tone || "professional";
 
-  return post;
-}
+    const prompt = `You are an expert ${platform} copywriter specializing in conversational marketing.
 
-function buildStaticPostPrompt(
-  planItem: ContentPlanPost,
-  brandProfile: BrandProfile,
-  platform: Platform,
-  options: StaticPostOptions
-): string {
-  const config = PLATFORM_CONFIG[platform];
-  const modeDescription =
-    planItem.mode === 'inception'
-      ? 'Soft CTA (follow, connect, learn more, visit link)'
-      : 'Direct CTA to FunWheel funnel link';
+Generate a complete static post for ${platform} about: ${contentPost.theme}
 
-  const styleGuide = `Use "${options.style}" style: ${
-    options.style === 'educational'
-      ? 'educational, informative, teach-based'
-      : options.style === 'promotional'
-        ? 'promotional, benefit-focused, persuasive'
-        : 'narrative, story-driven, emotionally engaging'
-  }`;
+## Content Brief
+- Theme: ${contentPost.theme}
+- Mode: ${mode}
+- Style: ${style}
+- Brand Voice: ${voiceGuidelines}
 
-  const hashtagGuide =
-    platform === 'instagram'
-      ? `Generate ${config.min_hashtags}-${config.max_hashtags} hashtags that are relevant to the post theme and will improve discoverability on Instagram.`
-      : `Generate ${config.min_hashtags}-${config.max_hashtags} professional hashtags (LinkedIn style - more selective, less is more).`;
-
-  return `Generate a ${platform} post for the following content plan:
-
-THEME: ${planItem.theme}
-MODE: ${planItem.mode} (${modeDescription})
-STYLE: ${styleGuide}
-PLATFORM: ${platform === 'instagram' ? 'Instagram - Visual, engaging, emoji-friendly' : 'LinkedIn - Professional, consultative, minimal emoji'}
-
-POST BRIEF: ${planItem.creative_brief}
-
-BRAND GUIDELINES:
-- Voice: ${brandProfile.voice_guidelines}
-- Tone: ${config.tone}
-
-POST REQUIREMENTS:
-- Maximum length: ${config.max_chars} characters (STRICT)
+## Platform Requirements
 - Platform: ${platform}
-- For Instagram: Make it visual, use relevant emojis, shorter sentences, call-to-action is friendly
-- For LinkedIn: Professional tone, minimal emojis, longer form is acceptable, call-to-action is consultative
+- Maximum characters: ${constraints.maxChars}
+- Hashtags: ${constraints.minHashtags}-${constraints.maxHashtags}
+- Tone: ${constraints.tone}
 
-HASHTAG STRATEGY:
-${hashtagGuide}
+## Mode Requirements
+${mode === 'inception' ? `- **Inception Mode:** Educational focus, soft CTA (follow, connect, learn more)
+- Build trust and authority
+- Anticipate interest` : `- **Atração Fatal Mode:** Create urgency and curiosity
+- Direct CTA to FunWheel link
+- Drive immediate engagement`}
 
-Each hashtag must:
-- Start with # (include in the hashtag string)
-- Be relevant to the content theme
-- Be commonly used on ${platform}
-
-OUTPUT FORMAT (valid JSON):
+## Output Format
+Generate EXACTLY a JSON object (no markdown, no extra text):
 {
-  "main_text": "Complete post copy respecting the ${config.max_chars} character limit",
-  "hashtags": ["#hashtag1", "#hashtag2", ...],
-  "design_note": "Visual suggestion for a single image (emoji + composition description, e.g. '🎯 Hero image with overlay text showing transformation')"
+  "main_text": "complete post copy",
+  "hashtags": ["hashtag1", "hashtag2", ...],
+  "design_note": "visual suggestion for the single image"
 }
 
-IMPORTANT:
-- Respect character limit STRICTLY (${config.max_chars} max)
-- Ensure logical flow and readability
-- For Inception: emphasize value, education, soft persuasion, invite to follow/connect
-- For Atração Fatal: create urgency, curiosity, curiosity gap, direct to FunWheel
-- Make post engaging with relevant emojis (Instagram) or minimal emojis (LinkedIn)
-- Design note should be actionable for designer
-- Include CTA naturally within the main text
-- Format hashtags as array with # symbol included`;
+## Constraints
+- main_text must be ≤ ${constraints.maxChars} characters
+- Include ${constraints.minHashtags}-${constraints.maxHashtags} hashtags
+- Design note should be 1-2 sentences describing the visual
+- Adapt tone to platform conventions
+- ${mode === 'inception' ? 'Soft CTA only - no aggressive selling' : 'Strong CTA directing to FunWheel'}
+
+Return ONLY the JSON object.`;
+
+    const response = await this.client.messages.create({
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 1500,
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+    });
+
+    const content = response.content[0];
+    if (content.type !== "text") {
+      throw new Error("Unexpected response type from Claude API");
+    }
+
+    let postData: { main_text: string; hashtags: string[]; design_note: string };
+    try {
+      postData = JSON.parse(content.text);
+    } catch (error) {
+      throw new Error(`Failed to parse Claude response as JSON: ${error}`);
+    }
+
+    // Validate character limit
+    if (postData.main_text.length > constraints.maxChars) {
+      throw new Error(
+        `Main text exceeds ${constraints.maxChars} chars: ${postData.main_text.length}`
+      );
+    }
+
+    // Validate hashtag count
+    if (
+      postData.hashtags.length < constraints.minHashtags ||
+      postData.hashtags.length > constraints.maxHashtags
+    ) {
+      throw new Error(
+        `Hashtag count must be ${constraints.minHashtags}-${constraints.maxHashtags}, got ${postData.hashtags.length}`
+      );
+    }
+
+    return {
+      plan_item_id: contentPost.theme,
+      brand_profile_id: brandProfile.id!,
+      client_id: clientId,
+      mode,
+      platform,
+      main_text: postData.main_text,
+      hashtags: postData.hashtags,
+      design_note: postData.design_note,
+      character_count: postData.main_text.length,
+      hashtag_count: postData.hashtags.length,
+      created_at: new Date(),
+    };
+  }
 }
