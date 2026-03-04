@@ -1,409 +1,203 @@
-/**
- * Visual Design Brief Generator
- * Generates design briefs for carousel slides and static posts
- *
- * Story 2.4: Visual Design Brief Generator (Epic 2)
- */
+import { Anthropic } from "@anthropic-ai/sdk";
+import { BrandProfile } from "@copyzen/shared";
+import { DesignBrief, DesignBriefOptions } from "../../types/design-brief.js";
 
-import { randomUUID } from 'crypto';
-import { BrandProfile } from '@copyzen/shared/types';
-import { Carousel } from "./carousel.js";
-import { StaticPost } from "./static-post.js";
-import { llmAdapter } from "../../../utils/llm-adapter.js";
-import { logger } from "../../../utils/logger.js";
-
-export interface ColorSpec {
-  name: string;
-  hex: string;
-  usage: string;
-}
-
-export interface TypographyGuide {
-  heading: string;
-  body: string;
-  accent?: string;
-}
-
-export interface CarouselSlideBrief {
-  slide_number: number;
-  design_note: string;
-  composition: string;
-  color_focus: string;
-}
-
-export interface DesignBriefCarousel {
-  id: string;
-  carousel_id: string;
+interface Carousel {
+  plan_item_id: string;
   brand_profile_id: string;
-  client_id: string;
-  content_type: 'carousel';
-  color_palette: ColorSpec[];
-  typography: TypographyGuide;
-  spacing_guidelines: string;
-  layout_guidelines: string;
-  imagery_style: string;
-  slides_briefs: CarouselSlideBrief[];
-  overall_aesthetic: string;
-  created_at: string;
-  updated_at: string;
+  mode: 'inception' | 'atração-fatal';
+  slides: Array<{
+    slide_number: number;
+    main_text: string;
+    support_text?: string;
+    design_note: string;
+    is_cover: boolean;
+    is_cta: boolean;
+  }>;
+  caption: string;
+  design_brief: string;
+  created_at?: Date;
 }
 
-export interface DesignBriefStaticPost {
-  id: string;
-  post_id: string;
+interface StaticPost {
+  plan_item_id: string;
   brand_profile_id: string;
-  client_id: string;
-  content_type: 'static-post';
+  client_id?: string;
+  mode: 'inception' | 'atração-fatal';
   platform: 'instagram' | 'linkedin';
-  color_palette: ColorSpec[];
-  typography: TypographyGuide;
-  image_composition: string;
-  focal_point: string;
-  text_overlay_guidelines: string;
-  imagery_style: string;
-  responsive_notes: string;
-  created_at: string;
-  updated_at: string;
+  main_text: string;
+  hashtags: string[];
+  design_note: string;
+  character_count: number;
+  hashtag_count: number;
+  created_at?: Date;
 }
 
-export type DesignBrief = DesignBriefCarousel | DesignBriefStaticPost;
+export class DesignBriefGeneratorService {
+  private client: Anthropic;
 
-/**
- * Generate design brief for carousel
- */
-export async function generateCarouselDesignBrief(
-  carousel: Carousel,
-  brandProfile: BrandProfile,
-  clientId: string
-): Promise<DesignBriefCarousel> {
-  logger.info('Carousel design brief generation started', {
-    carousel_id: carousel.id,
-  });
-
-  // Build LLM prompt
-  const prompt = buildCarouselBriefPrompt(carousel, brandProfile);
-
-  let color_palette: ColorSpec[] = [];
-  let typography: TypographyGuide = { heading: '', body: '' };
-  let spacing_guidelines = '';
-  let layout_guidelines = '';
-  let imagery_style = '';
-  let slides_briefs: CarouselSlideBrief[] = [];
-  let overall_aesthetic = '';
-  let attempts = 0;
-  const maxRetries = 2;
-
-  while (attempts < maxRetries) {
-    attempts++;
-    try {
-      const llmResponse = await llmAdapter.generateCompletion(prompt);
-
-      // Parse LLM response
-      const jsonMatch = llmResponse.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('No JSON object found in LLM response');
-      }
-
-      const parsed = JSON.parse(jsonMatch[0]) as {
-        color_palette: Array<{ name: string; hex: string; usage: string }>;
-        typography: { heading: string; body: string; accent?: string };
-        spacing_guidelines: string;
-        layout_guidelines: string;
-        imagery_style: string;
-        slides_briefs: Array<{
-          slide_number: number;
-          design_note: string;
-          composition: string;
-          color_focus: string;
-        }>;
-        overall_aesthetic: string;
-      };
-
-      color_palette = parsed.color_palette || [];
-      typography = parsed.typography || { heading: '', body: '' };
-      spacing_guidelines = parsed.spacing_guidelines || '';
-      layout_guidelines = parsed.layout_guidelines || '';
-      imagery_style = parsed.imagery_style || '';
-      slides_briefs = parsed.slides_briefs || [];
-      overall_aesthetic = parsed.overall_aesthetic || '';
-
-      // Validate structure
-      if (!color_palette.length || !typography.heading) {
-        throw new Error('Invalid design brief structure from LLM');
-      }
-
-      logger.info('Carousel design brief generated successfully', {
-        carousel_id: carousel.id,
-        colors: color_palette.length,
-        slides: slides_briefs.length,
-      });
-
-      break;
-    } catch (error) {
-      logger.error('Carousel design brief generation failed', {
-        error: String(error),
-        attempt: attempts,
-      });
-
-      if (attempts >= maxRetries) {
-        throw new Error(`Failed to generate design brief after ${attempts} attempts`);
-      }
-    }
+  constructor() {
+    this.client = new Anthropic();
   }
 
-  // Create design brief object
-  const brief: DesignBriefCarousel = {
-    id: randomUUID(),
-    carousel_id: carousel.id,
-    brand_profile_id: brandProfile.id,
-    client_id: clientId,
-    content_type: 'carousel',
-    color_palette: color_palette,
-    typography,
-    spacing_guidelines: spacing_guidelines,
-    layout_guidelines: layout_guidelines,
-    imagery_style: imagery_style,
-    slides_briefs: slides_briefs,
-    overall_aesthetic: overall_aesthetic,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
+  async generateCarouselDesignBrief(
+    carousel: Carousel,
+    brandProfile: BrandProfile,
+    clientId: string,
+    options: DesignBriefOptions = {}
+  ): Promise<DesignBrief> {
+    const detailed = options.detailed !== false;
+    const includeResponsive = options.include_responsive !== false;
 
-  logger.info('Design brief created successfully', {
-    brief_id: brief.id,
-    content_type: brief.content_type,
-  });
+    const colorPalette = brandProfile.color_palette;
+    const prompt = `You are a visual design strategist specializing in Instagram carousel design.
 
-  return brief;
-}
+Generate a detailed visual design brief for an Instagram carousel with ${carousel.slides.length} slides.
 
-/**
- * Generate design brief for static post
- */
-export async function generateStaticPostDesignBrief(
-  post: StaticPost,
-  brandProfile: BrandProfile,
-  clientId: string
-): Promise<DesignBriefStaticPost> {
-  logger.info('Static post design brief generation started', {
-    post_id: post.id,
-    platform: post.platform,
-  });
+## Brand Profile
+- Primary Color: ${colorPalette.primary}
+- Secondary Color: ${colorPalette.secondary}
+- Accent Color: ${colorPalette.accent}
+- Neutral Color: ${colorPalette.neutral}
+- Visual Style: ${brandProfile.visual_style}
 
-  // Build LLM prompt
-  const prompt = buildStaticPostBriefPrompt(post, brandProfile);
+## Carousel Overview
+- Mode: ${carousel.mode}
+- Total Slides: ${carousel.slides.length}
+- Design Brief: ${carousel.design_brief}
 
-  let color_palette: ColorSpec[] = [];
-  let typography: TypographyGuide = { heading: '', body: '' };
-  let imageComposition = '';
-  let focalPoint = '';
-  let textOverlayGuidelines = '';
-  let imagery_style = '';
-  let responsiveNotes = '';
-  let attempts = 0;
-  const maxRetries = 2;
+## Carousel Slides
+${carousel.slides.map(s => `- Slide ${s.slide_number}: "${s.main_text.substring(0, 50)}..." (${s.is_cover ? 'COVER' : s.is_cta ? 'CTA' : 'CONTENT'})`).join('\n')}
 
-  while (attempts < maxRetries) {
-    attempts++;
-    try {
-      const llmResponse = await llmAdapter.generateCompletion(prompt);
-
-      // Parse LLM response
-      const jsonMatch = llmResponse.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('No JSON object found in LLM response');
-      }
-
-      const parsed = JSON.parse(jsonMatch[0]) as {
-        color_palette: Array<{ name: string; hex: string; usage: string }>;
-        typography: { heading: string; body: string; accent?: string };
-        image_composition: string;
-        focal_point: string;
-        text_overlay_guidelines: string;
-        imagery_style: string;
-        responsive_notes: string;
-      };
-
-      color_palette = parsed.color_palette || [];
-      typography = parsed.typography || { heading: '', body: '' };
-      imageComposition = parsed.image_composition || '';
-      focalPoint = parsed.focal_point || '';
-      textOverlayGuidelines = parsed.text_overlay_guidelines || '';
-      imagery_style = parsed.imagery_style || '';
-      responsiveNotes = parsed.responsive_notes || '';
-
-      // Validate structure
-      if (!color_palette.length || !typography.heading) {
-        throw new Error('Invalid design brief structure from LLM');
-      }
-
-      logger.info('Static post design brief generated successfully', {
-        post_id: post.id,
-        platform: post.platform,
-        colors: color_palette.length,
-      });
-
-      break;
-    } catch (error) {
-      logger.error('Static post design brief generation failed', {
-        error: String(error),
-        attempt: attempts,
-      });
-
-      if (attempts >= maxRetries) {
-        throw new Error(`Failed to generate design brief after ${attempts} attempts`);
-      }
-    }
-  }
-
-  // Create design brief object
-  const brief: DesignBriefStaticPost = {
-    id: randomUUID(),
-    post_id: post.id,
-    brand_profile_id: brandProfile.id,
-    client_id: clientId,
-    content_type: 'static-post',
-    platform: post.platform,
-    color_palette: color_palette,
-    typography,
-    image_composition: imageComposition,
-    focal_point: focalPoint,
-    text_overlay_guidelines: textOverlayGuidelines,
-    imagery_style: imagery_style,
-    responsive_notes: responsiveNotes,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
-
-  logger.info('Design brief created successfully', {
-    brief_id: brief.id,
-    content_type: brief.content_type,
-  });
-
-  return brief;
-}
-
-function buildCarouselBriefPrompt(carousel: Carousel, brandProfile: BrandProfile): string {
-  const slideDescriptions = carousel.slides
-    .map(
-      (s) =>
-        `Slide ${s.slide_number}: "${s.main_text}" (${s.design_note})`
-    )
-    .join('\n');
-
-  return `Generate a comprehensive visual design brief for an Instagram carousel with ${carousel.slides.length} slides.
-
-BRAND PROFILE:
-- Voice: ${brandProfile.voice_guidelines}
-- Color Palette: ${JSON.stringify(brandProfile.color_palette)}
-- Font Recommendations: ${JSON.stringify(brandProfile.font_recommendations)}
-
-CAROUSEL CONTENT:
-${slideDescriptions}
-
-DESIGN BRIEF REQUIREMENTS:
-1. Extract and specify color palette (primary, secondary, accent colors with hex codes)
-2. Recommend typography (heading, body, accent fonts with sizes)
-3. Provide spacing and layout guidelines
-4. Suggest imagery style aligned with brand voice
-5. Create per-slide design notes with composition and color focus
-6. Provide overall aesthetic direction
-
-COLOR PALETTE FORMAT:
-- Include 3-5 colors (primary, secondary, accent, neutral, background)
-- Each must have hex code and clear usage description
-
-TYPOGRAPHY:
-- Heading font (recommended size 24-32px)
-- Body font (recommended size 14-16px)
-- Optional accent font for special emphasis
-
-OUTPUT FORMAT (valid JSON):
+Generate a comprehensive design brief in JSON format:
 {
-  "color_palette": [
-    {"name": "Primary", "hex": "#000000", "usage": "Headlines, CTAs"},
+  "colors": [
+    {"hex": "#...", "name": "color_name", "usage": "where to use"},
     ...
   ],
   "typography": {
-    "heading": "Font name, weight, size",
-    "body": "Font name, weight, size",
-    "accent": "Optional font"
+    "heading": {"font": "font-name", "size": "px", "weight": "number"},
+    "body": {"font": "font-name", "size": "px", "weight": "number"}
   },
-  "spacing_guidelines": "Padding, margins, gaps between elements",
-  "layout_guidelines": "Grid system, alignment, responsive breakpoints",
-  "imagery_style": "Photography style, illustration approach, mood, lighting",
-  "slides_briefs": [
-    {
-      "slide_number": 1,
-      "design_note": "Visual suggestion with emoji",
-      "composition": "Rule of thirds, focal point placement",
-      "color_focus": "Which colors dominate this slide"
+  "layout_guide": "2-3 sentence layout recommendations",
+  "imagery_style": "visual tone and mood description",
+  "spacing_guidelines": "margin/padding recommendations",
+  "responsive_notes": "mobile and desktop considerations",
+  "per_slide_notes": ["slide 1 visual note", "slide 2 visual note", ...],
+  "overall_aesthetic": "overall visual direction",
+  "design_notes": "3-4 key design principles"
+}
+
+Return ONLY the JSON object.`;
+
+    const response = await this.client.messages.create({
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 1500,
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    const content = response.content[0];
+    if (content.type !== "text") {
+      throw new Error("Unexpected response type from Claude API");
     }
-  ],
-  "overall_aesthetic": "Cohesive visual direction across all slides"
-}
 
-IMPORTANT:
-- Ensure color harmony and brand consistency
-- Make all recommendations actionable for designers
-- Include responsive design considerations
-- Use specific hex codes, not color names`;
-}
+    let briefData;
+    try {
+      briefData = JSON.parse(content.text);
+    } catch (error) {
+      throw new Error(`Failed to parse design brief JSON: ${error}`);
+    }
 
-function buildStaticPostBriefPrompt(post: StaticPost, brandProfile: BrandProfile): string {
-  const platformContext =
-    post.platform === 'instagram'
-      ? 'Instagram (1080x1350px portrait, 1080x1080px square, or 1200x628px landscape)'
-      : 'LinkedIn (1200x627px or 1200x1500px vertical)';
+    return {
+      content_id: carousel.plan_item_id,
+      content_type: 'carousel',
+      brand_profile_id: brandProfile.id!,
+      colors: briefData.colors || [],
+      typography: briefData.typography,
+      layout_guide: briefData.layout_guide,
+      imagery_style: briefData.imagery_style,
+      spacing_guidelines: briefData.spacing_guidelines,
+      responsive_notes: briefData.responsive_notes,
+      per_slide_notes: briefData.per_slide_notes,
+      overall_aesthetic: briefData.overall_aesthetic,
+      design_notes: briefData.design_notes,
+      created_at: new Date(),
+    };
+  }
 
-  return `Generate a comprehensive visual design brief for a ${post.platform} static post.
+  async generateStaticPostDesignBrief(
+    post: StaticPost,
+    brandProfile: BrandProfile,
+    clientId: string,
+    options: DesignBriefOptions = {}
+  ): Promise<DesignBrief> {
+    const colorPalette = brandProfile.color_palette;
+    const prompt = `You are a visual design strategist for ${post.platform === 'instagram' ? 'Instagram' : 'LinkedIn'} posts.
 
-BRAND PROFILE:
-- Voice: ${brandProfile.voice_guidelines}
-- Color Palette: ${JSON.stringify(brandProfile.color_palette)}
-- Font Recommendations: ${JSON.stringify(brandProfile.font_recommendations)}
+Generate a detailed visual design brief for a ${post.platform} static post.
 
-POST CONTENT:
+## Brand Profile
+- Primary Color: ${colorPalette.primary}
+- Secondary Color: ${colorPalette.secondary}
+- Accent Color: ${colorPalette.accent}
+- Visual Style: ${brandProfile.visual_style}
+
+## Post Overview
 - Platform: ${post.platform}
-- Text: "${post.main_text}"
-- Hashtags: ${post.hashtags.join(', ')}
-- Design Note: ${post.design_note}
+- Mode: ${post.mode}
+- Copy Preview: "${post.main_text.substring(0, 100)}..."
 
-DESIGN BRIEF REQUIREMENTS:
-1. Extract and specify color palette (primary, secondary, accent colors with hex codes)
-2. Recommend typography (heading, body, accent fonts with sizes)
-3. Describe image composition and layout
-4. Identify focal point and visual hierarchy
-5. Provide text overlay guidelines if applicable
-6. Suggest imagery style aligned with brand voice
-7. Include responsive/scaling notes for different aspect ratios
-
-PLATFORM SPECIFICATIONS:
-${platformContext}
-
-OUTPUT FORMAT (valid JSON):
+Generate a comprehensive design brief in JSON format:
 {
-  "color_palette": [
-    {"name": "Primary", "hex": "#000000", "usage": "Headlines, CTAs"},
+  "colors": [
+    {"hex": "#...", "name": "color_name", "usage": "where to use"},
     ...
   ],
   "typography": {
-    "heading": "Font name, weight, size",
-    "body": "Font name, weight, size",
-    "accent": "Optional font"
+    "heading": {"font": "font-name", "size": "px", "weight": "number"},
+    "body": {"font": "font-name", "size": "px", "weight": "number"}
   },
-  "image_composition": "Detailed layout description with element positioning",
-  "focal_point": "What draws the eye first, where to place hero image",
-  "text_overlay_guidelines": "How text should layer over image (opacity, positioning, background)",
-  "imagery_style": "Photography style, mood, lighting, color temperature",
-  "responsive_notes": "How design adapts to different aspect ratios and sizes"
+  "layout_guide": "layout recommendations",
+  "imagery_style": "visual mood description",
+  "spacing_guidelines": "spacing recommendations",
+  "responsive_notes": "mobile considerations",
+  "overall_aesthetic": "visual direction",
+  "design_notes": "key design principles"
 }
 
-IMPORTANT:
-- Ensure color harmony and brand consistency
-- Make all recommendations actionable for designers
-- Text must be legible over background image
-- Include contrast ratios for accessibility
-- Consider mobile-first design
-- Use specific hex codes, not color names`;
+Return ONLY the JSON object.`;
+
+    const response = await this.client.messages.create({
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 1000,
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    const content = response.content[0];
+    if (content.type !== "text") {
+      throw new Error("Unexpected response type from Claude API");
+    }
+
+    let briefData;
+    try {
+      briefData = JSON.parse(content.text);
+    } catch (error) {
+      throw new Error(`Failed to parse design brief JSON: ${error}`);
+    }
+
+    return {
+      content_id: post.plan_item_id,
+      content_type: 'static_post',
+      brand_profile_id: brandProfile.id!,
+      colors: briefData.colors || [],
+      typography: briefData.typography,
+      layout_guide: briefData.layout_guide,
+      imagery_style: briefData.imagery_style,
+      spacing_guidelines: briefData.spacing_guidelines,
+      responsive_notes: briefData.responsive_notes,
+      overall_aesthetic: briefData.overall_aesthetic,
+      design_notes: briefData.design_notes,
+      created_at: new Date(),
+    };
+  }
 }
