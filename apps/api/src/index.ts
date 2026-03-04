@@ -58,6 +58,9 @@ const validateApiKeyExceptPost = (req: Request, res: Response, next: NextFunctio
 
 // Protected routes (require API key)
 // Clients routes (Story 1.3)
+// GET /clients is public (list for form selection)
+// POST/PATCH/DELETE require API key
+app.get('/clients', clientsRouter);
 app.use('/clients', validateApiKey, clientsRouter);
 
 // Briefings routes (Story 1.3)
