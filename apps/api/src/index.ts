@@ -48,12 +48,22 @@ app.get('/metrics', (req: Request, res: Response) => {
   });
 });
 
+// Middleware to validate API key only for non-POST requests
+const validateApiKeyExceptPost = (req: Request, res: Response, next: NextFunction) => {
+  if (req.method === 'POST') {
+    return next(); // Skip validation for POST (public form submission)
+  }
+  return validateApiKey(req, res, next);
+};
+
 // Protected routes (require API key)
 // Clients routes (Story 1.3)
 app.use('/clients', validateApiKey, clientsRouter);
 
 // Briefings routes (Story 1.3)
-app.use('/briefings', validateApiKey, briefingsRouter);
+// POST /briefings is public (form submission) for story 1.2.5
+// GET/PATCH/DELETE require API key
+app.use('/briefings', validateApiKeyExceptPost, briefingsRouter);
 
 // Brand profiles routes (Story 1.4)
 app.use('/brand-profiles', validateApiKey, brandProfilesRouter);
