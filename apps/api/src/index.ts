@@ -51,7 +51,7 @@ app.get('/metrics', (req: Request, res: Response) => {
 
 // Public endpoints - no authentication required
 // List all clients (public for form selection)
-app.get('/api/clients-public', async (req: Request, res: Response, next: NextFunction) => {
+app.get('/clients-list', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const clients = await ClientRepository.getAll();
     res.json({
