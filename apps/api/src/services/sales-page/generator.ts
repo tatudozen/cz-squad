@@ -228,7 +228,7 @@ JSON:
   }
 }
 
-async function generateOffer(client: Anthropic, context: string, offer: OfferDetails): Promise<Section> {
+async function generateOffer(client: Anthropic, context: string, _offer: OfferDetails): Promise<Section> {
   const prompt = `${context}
 
 SEÇÃO OFERTA (português BR):
