@@ -6,7 +6,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { BrandProfileRepository, BriefingRepository } from '@copyzen/shared/repositories/index.js';
-import { generateSalesPageContent } from '../services/sales-page/generator.js';
+import { generateSalesPage } from '../services/sales-page/generator.js';
 import { buildSalesPage } from '../services/sales-page/builder.js';
 import { ApiError } from '../middleware/error-handler.js';
 import type { OfferDetails } from '../types/sales-page.js';
@@ -97,12 +97,10 @@ router.post('/generate', async (req: Request, res: Response, next: NextFunction)
     }
 
     // Generate sales page
-    const salesPageContent = await generateSalesPageContent(
-      briefing,
-      brandProfile,
+    const salesPageContent = await generateSalesPage(
+      briefing as any,
+      brandProfile as any,
       (briefing as any).client_id,
-      validatedData.briefing_id,
-      validatedData.brand_profile_id,
       validatedData.offer_details as OfferDetails | undefined
     );
 

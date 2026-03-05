@@ -1,13 +1,29 @@
-/**
- * Sales Page Types
- * Data structures for long-form sales page generation
- */
+export interface OfferDetails {
+  price?: number;
+  price_currency?: string; // default: BRL
+  packages?: Array<{
+    name: string;
+    price: number;
+    features: string[];
+    is_recommended?: boolean;
+  }>;
+  guarantee?: {
+    length_days: number;
+    description: string;
+  };
+  bonuses?: Array<{
+    name: string;
+    value: string;
+  }>;
+  deadline?: string; // ISO8601 or "N days" format
+  special_limited_offer?: boolean;
+}
 
 export interface Section {
   heading: string;
-  copy: string; // Markdown-compatible
-  design_suggestion: string; // Visual guidance for designer
-  design_note: string; // Specific instructions
+  copy: string;
+  design_suggestion: string;
+  design_note: string;
   cta_text?: string;
   cta_type?: 'primary' | 'secondary';
 }
@@ -15,35 +31,10 @@ export interface Section {
 export interface FAQSection {
   question: string;
   answer: string;
-  design_suggestion: string;
-  design_note: string;
-}
-
-export interface OfferPackage {
-  name: string;
-  price: number;
-  features: string[];
-  is_recommended?: boolean;
-}
-
-export interface Guarantee {
-  length_days: number;
-  description: string;
-}
-
-export interface BonusItem {
-  name: string;
-  value: string;
-}
-
-export interface OfferDetails {
-  price?: number;
-  price_currency?: string; // Default: BRL
-  packages?: OfferPackage[];
-  guarantee?: Guarantee;
-  bonuses?: BonusItem[];
-  deadline?: string; // ISO8601 or "N days" format
-  special_limited_offer?: boolean;
+  heading?: string;
+  copy?: string;
+  design_suggestion?: string;
+  design_note?: string;
 }
 
 export interface SalesPageSections {
@@ -73,12 +64,10 @@ export interface SalesPageContent {
   sections: SalesPageSections;
   metadata: SalesPageMetadata;
   created_at: string;
-  updated_at: string;
 }
 
-export type GenerateSalesPageRequest = {
+export interface GenerateSalesPageRequest {
   briefing_id: string;
   brand_profile_id: string;
-  client_id: string;
   offer_details?: OfferDetails;
-};
+}
