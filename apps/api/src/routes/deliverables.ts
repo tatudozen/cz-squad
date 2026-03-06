@@ -1,100 +1,43 @@
-/**
- * Deliverable Routes
- * Endpoints for approval workflow (review, approve, reject, regenerate)
- *
- * Story 4.4: Operator Review & Approval Flow
- */
-
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import deliverableRepository from '../repositories/DeliverableRepository.js';
-import projectRepository from '../repositories/ProjectRepository.js';
-import {
-  approveDeliverable,
-  rejectDeliverable,
-  regenerateDeliverable,
-  buildDeliveryReport,
-  getProjectApprovalStatus,
-} from '../services/approval/approval-workflow.js';
+import { createClient } from '@supabase/supabase-js';
+import { config } from '../utils/config.js';
 import { ApiError } from '../middleware/error-handler.js';
 
 const router = Router();
+const supabase = createClient(config.supabaseUrl, config.supabaseServiceRoleKey);
 
-// =====================================================
-// VALIDATION SCHEMAS
-// =====================================================
-
-const RejectDeliverableSchema = z.object({
-  feedback: z.string().min(5, 'Feedback must be at least 5 characters'),
+const ApproveSchema = z.object({
+  feedback: z.string().optional()
 });
 
-const RegenerateDeliverableSchema = z.object({
-  feedback: z.string().optional(),
+const RejectSchema = z.object({
+  feedback: z.string().min(1, 'Feedback is required for rejection')
 });
 
-// =====================================================
-// ROUTES
-// =====================================================
-
-/**
- * GET /deliverables/:id
- * Get a single deliverable with full details
- */
-router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const deliverableId = req.params.id;
-
-    if (!deliverableId || deliverableId.length < 8) {
-      throw new ApiError(400, 'INVALID_DELIVERABLE_ID', 'Invalid deliverable ID format');
-    }
-
-    const deliverable = await deliverableRepository.getById(deliverableId);
-    if (!deliverable) {
-      throw new ApiError(404, 'DELIVERABLE_NOT_FOUND', 'Deliverable not found');
-    }
-
-    res.status(200).json({
-      data: deliverable,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
-    next(error);
-  }
+const RegenerateSchema = z.object({
+  feedback: z.string().min(1, 'Feedback is required for regeneration')
 });
 
 /**
  * GET /projects/:projectId/deliverables
- * List all deliverables for a project
+ * Get all deliverables for a project
  */
-router.get('/project/:projectId/list', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:projectId/deliverables', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const projectId = req.params.projectId;
+    const { projectId } = req.params;
 
-    if (!projectId || projectId.length < 8) {
-      throw new ApiError(400, 'INVALID_PROJECT_ID', 'Invalid project ID format');
-    }
+    const { data, error } = await supabase
+      .from('deliverables')
+      .select('*')
+      .eq('project_id', projectId);
 
-    const project = await projectRepository.getById(projectId);
-    if (!project) {
-      throw new ApiError(404, 'PROJECT_NOT_FOUND', 'Project not found');
-    }
+    if (error) throw error;
 
-    const summary = await deliverableRepository.getProjectDeliverablesSummary(projectId);
-
-    res.status(200).json({
-      data: {
-        project_id: projectId,
-        status: project.status,
-        deliverables: summary.deliverables,
-        summary: {
-          total: summary.deliverables.length,
-          approved: summary.approved_count,
-          rejected: summary.rejected_count,
-          pending: summary.pending_count,
-          all_approved: summary.all_approved,
-        },
-      },
-      timestamp: new Date().toISOString(),
+    res.json({
+      data: data || [],
+      count: (data || []).length,
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
     next(error);
@@ -107,17 +50,27 @@ router.get('/project/:projectId/list', async (req: Request, res: Response, next:
  */
 router.post('/:id/approve', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const deliverableId = req.params.id;
+    const { id } = req.params;
+    const validatedData = ApproveSchema.parse(req.body);
 
-    if (!deliverableId || deliverableId.length < 8) {
-      throw new ApiError(400, 'INVALID_DELIVERABLE_ID', 'Invalid deliverable ID format');
-    }
+    // Update deliverable status
+    const { error } = await supabase
+      .from('deliverables')
+      .update({
+        status: 'approved',
+        feedback: validatedData.feedback,
+        approved_at: new Date().toISOString()
+      })
+      .eq('id', id);
 
-    const result = await approveDeliverable(deliverableId);
+    if (error) throw error;
 
-    res.status(200).json({
-      data: result,
-      timestamp: new Date().toISOString(),
+    // eslint-disable-next-line no-console
+    console.log(`[DELIVERABLE_APPROVED] id=${id}`);
+
+    res.json({
+      data: { id, status: 'approved' },
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
     next(error);
@@ -126,22 +79,29 @@ router.post('/:id/approve', async (req: Request, res: Response, next: NextFuncti
 
 /**
  * POST /deliverables/:id/reject
- * Reject a deliverable with feedback
+ * Reject a deliverable
  */
 router.post('/:id/reject', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const deliverableId = req.params.id;
-    const validatedData = RejectDeliverableSchema.parse(req.body);
+    const { id } = req.params;
+    const validatedData = RejectSchema.parse(req.body);
 
-    if (!deliverableId || deliverableId.length < 8) {
-      throw new ApiError(400, 'INVALID_DELIVERABLE_ID', 'Invalid deliverable ID format');
-    }
+    const { error } = await supabase
+      .from('deliverables')
+      .update({
+        status: 'rejected',
+        feedback: validatedData.feedback
+      })
+      .eq('id', id);
 
-    const result = await rejectDeliverable(deliverableId, validatedData.feedback);
+    if (error) throw error;
 
-    res.status(200).json({
-      data: result,
-      timestamp: new Date().toISOString(),
+    // eslint-disable-next-line no-console
+    console.log(`[DELIVERABLE_REJECTED] id=${id}`);
+
+    res.json({
+      data: { id, status: 'rejected', feedback: validatedData.feedback },
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
     next(error);
@@ -150,39 +110,53 @@ router.post('/:id/reject', async (req: Request, res: Response, next: NextFunctio
 
 /**
  * POST /deliverables/:id/regenerate
- * Regenerate a deliverable with optional feedback
+ * Regenerate a deliverable
  */
 router.post('/:id/regenerate', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const deliverableId = req.params.id;
-    const validatedData = RegenerateDeliverableSchema.parse(req.body);
+    const { id } = req.params;
+    const validatedData = RegenerateSchema.parse(req.body);
 
-    if (!deliverableId || deliverableId.length < 8) {
-      throw new ApiError(400, 'INVALID_DELIVERABLE_ID', 'Invalid deliverable ID format');
-    }
+    // Fetch deliverable
+    const { data: deliverable, error: fetchError } = await supabase
+      .from('deliverables')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-    const deliverable = await deliverableRepository.getById(deliverableId);
+    if (fetchError) throw fetchError;
+
     if (!deliverable) {
       throw new ApiError(404, 'DELIVERABLE_NOT_FOUND', 'Deliverable not found');
     }
 
-    // Check max regenerations
-    if (deliverable.regenerations >= 2) {
-      throw new ApiError(
-        400,
-        'MAX_REGENERATIONS_EXCEEDED',
-        `Maximum regenerations (2) exceeded for this deliverable`
-      );
+    // Check regeneration limit
+    if ((deliverable.regenerations || 0) >= 2) {
+      throw new ApiError(400, 'MAX_REGENERATIONS_EXCEEDED', 'Maximum regenerations (2) reached');
     }
 
-    const result = await regenerateDeliverable(deliverableId, validatedData.feedback);
+    // Update status and increment regenerations
+    const { error } = await supabase
+      .from('deliverables')
+      .update({
+        status: 'generating',
+        feedback: validatedData.feedback,
+        regenerations: (deliverable.regenerations || 0) + 1
+      })
+      .eq('id', id);
+
+    if (error) throw error;
 
     // eslint-disable-next-line no-console
-    console.log(`[DELIVERABLE_REGENERATE] id=${deliverableId} feedback_provided=${!!validatedData.feedback}`);
+    console.log(`[DELIVERABLE_REGENERATE] id=${id} regeneration=${(deliverable.regenerations || 0) + 1}`);
 
-    res.status(200).json({
-      data: result,
-      timestamp: new Date().toISOString(),
+    res.json({
+      data: {
+        id,
+        status: 'generating',
+        regenerations: (deliverable.regenerations || 0) + 1
+      },
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
     next(error);
@@ -193,59 +167,54 @@ router.post('/:id/regenerate', async (req: Request, res: Response, next: NextFun
  * GET /projects/:projectId/report
  * Get delivery report for a project
  */
-router.get('/project/:projectId/report', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:projectId/report', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const projectId = req.params.projectId;
+    const { projectId } = req.params;
 
-    if (!projectId || projectId.length < 8) {
-      throw new ApiError(400, 'INVALID_PROJECT_ID', 'Invalid project ID format');
-    }
+    // Fetch project
+    const { data: project, error: projectError } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('id', projectId)
+      .single();
 
-    const project = await projectRepository.getById(projectId);
-    if (!project) {
-      throw new ApiError(404, 'PROJECT_NOT_FOUND', 'Project not found');
-    }
+    if (projectError) throw projectError;
 
-    const report = await buildDeliveryReport(projectId);
+    // Fetch deliverables
+    const { data: deliverables, error: delError } = await supabase
+      .from('deliverables')
+      .select('*')
+      .eq('project_id', projectId);
 
-    res.status(200).json({
-      data: report,
-      timestamp: new Date().toISOString(),
+    if (delError) throw delError;
+
+    const approved = (deliverables || []).filter(d => d.status === 'approved').length;
+    const total = (deliverables || []).length;
+    const completionPercent = total > 0 ? Math.round((approved / total) * 100) : 0;
+
+    res.json({
+      data: {
+        project_id: projectId,
+        status: project.status,
+        completion_percent: completionPercent,
+        deliverables: {
+          total,
+          approved,
+          rejected: (deliverables || []).filter(d => d.status === 'rejected').length,
+          pending: (deliverables || []).filter(d => d.status === 'pending').length
+        },
+        metrics: {
+          total_time_ms: project.total_time_ms,
+          estimated_cost: project.estimated_cost
+        },
+        created_at: project.created_at,
+        completed_at: project.completed_at
+      },
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
     next(error);
   }
 });
-
-/**
- * GET /projects/:projectId/approval-status
- * Get current approval status summary
- */
-router.get(
-  '/project/:projectId/approval-status',
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const projectId = req.params.projectId;
-
-      if (!projectId || projectId.length < 8) {
-        throw new ApiError(400, 'INVALID_PROJECT_ID', 'Invalid project ID format');
-      }
-
-      const project = await projectRepository.getById(projectId);
-      if (!project) {
-        throw new ApiError(404, 'PROJECT_NOT_FOUND', 'Project not found');
-      }
-
-      const status = await getProjectApprovalStatus(projectId);
-
-      res.status(200).json({
-        data: status,
-        timestamp: new Date().toISOString(),
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
-);
 
 export default router;
